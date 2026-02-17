@@ -14,7 +14,7 @@ Author: Carmen Esteban
 License: MIT
 """
 
-__version__ = "0.2.0"  # strategy, optimizer, hardness, tseitin modules
+__version__ = "0.2.1"  # fix constant-degree classification
 __author__ = "Carmen Esteban"
 
 from selector_complexity.core import PolynomialSystem, SelectorFamily
