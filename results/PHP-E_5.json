@@ -1,22 +1,22 @@
 {
-  "system": "PHP-E(4)",
-  "n": 30,
+  "system": "PHP-E(5)",
+  "n": 45,
   "level_estimate": 2,
-  "candidates_tested": 113,
-  "candidates_verified": 111,
+  "candidates_tested": 118,
+  "candidates_verified": 116,
   "best_selector": {
     "num_selectors": 2,
     "total_size": 3,
     "degree": 1,
-    "source": "template:product:vars20"
+    "source": "template:product:vars30"
   },
   "cert_without_selectors": null,
   "cert_with_selectors": null,
   "all_candidates": [],
   "timings": {
-    "baseline": 41.128,
+    "baseline": 7.052,
     "exhaustive": 0.0,
-    "template": 0.003,
+    "template": 0.012,
     "ips_guided": 0.0,
     "subspace_projection": 0.0,
     "variable_group": 0.001

@@ -20,11 +20,11 @@
   },
   "all_candidates": [],
   "timings": {
-    "baseline": 0.008,
-    "exhaustive": 28.27,
-    "template": 0.003,
-    "ips_guided": 0.019,
-    "subspace_projection": 0.05,
-    "variable_group": 0.028
+    "baseline": 0.007,
+    "exhaustive": 302.079,
+    "template": 0.004,
+    "ips_guided": 0.028,
+    "subspace_projection": 0.136,
+    "variable_group": 0.072
   }
 }

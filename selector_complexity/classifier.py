@@ -351,12 +351,24 @@ def _build_summary(level, confidence, reasoning, evidence):
 # =====================================================================
 
 def _fit_growth_rate(n_values, sizes):
-    """Fit growth rate: polynomial, exponential, or factorial."""
+    """Fit growth rate: constant, polynomial, exponential, or factorial."""
     if len(n_values) < 2:
         return 'insufficient_data', {}
 
     ns = np.array(n_values, dtype=float)
     ss = np.array(sizes, dtype=float)
+
+    # Constant check: if values barely change, growth is constant (O(1))
+    if ss.min() > 0 and (ss.max() - ss.min()) / ss.max() < 0.15:
+        details = {
+            'poly_degree': 0.0,
+            'poly_residual': 0.0,
+            'exp_base': 1.0,
+            'exp_residual': 0.0,
+            'factorial_ratios': [],
+            'constant_value': float(ss.mean()),
+        }
+        return 'constant', details
 
     # Polynomial fit: log(size) ~ k * log(n)
     log_ns = np.log(ns + 1e-10)
@@ -581,9 +593,18 @@ def _classify_family(instances, feasible, infeasible, scaling):
     avg_gap = sum(degree_gaps) / len(degree_gaps) if degree_gaps else 0
     max_gap = max(degree_gaps) if degree_gaps else 0
 
-    # SC(0): Degree grows polynomially (typically linearly) with n.
-    # This means the IPS proof is "direct" — no selector machinery
-    # needed beyond what the axiom structure provides.
+    # SC(0): Degree is constant or grows polynomially with n.
+    # Constant degree is the strongest SC(0) signal — bounded-degree
+    # certificates exist for all n regardless of system size.
+    if degree_growth == 'constant':
+        const_val = d_details.get('constant_value', 0)
+        reasoning = (
+            "Certificate degree is constant (~{:.0f}) across all tested n. "
+            "Bounded-degree IPS certificates exist — "
+            "no selectors needed.".format(const_val)
+        )
+        return 0, 'high', reasoning
+
     if degree_growth == 'polynomial':
         poly_deg = d_details.get('poly_degree', 0)
         if poly_deg <= 2 and max_gap <= 4:
