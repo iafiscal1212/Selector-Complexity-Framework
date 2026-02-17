@@ -28,6 +28,9 @@ from itertools import combinations
 from math import comb, log2
 import time
 
+from selector_complexity.patterns import detect_patterns
+from selector_complexity.predictor import extract_features, SCPredictor
+
 
 # =====================================================================
 # PHASE 1: STRUCTURAL ANALYSIS
@@ -95,8 +98,27 @@ def _analyze_structure(axioms, num_vars):
 # PHASE 2: IPS CERTIFICATE SEARCH
 # =====================================================================
 
-def _search_certificates(axioms, num_vars, max_degree, verbose):
-    """Search for IPS certificates at increasing degrees."""
+def _search_certificates(axioms, num_vars, max_degree, verbose,
+                         incremental=True):
+    """Search for IPS certificates at increasing degrees.
+
+    Parameters
+    ----------
+    axioms : list of list of (coef, frozenset) tuples
+    num_vars : int
+    max_degree : int
+    verbose : bool
+    incremental : bool
+        If True, use IncrementalIPSState to reuse monomial enumeration
+        across degrees (default True). Falls back to standard if False.
+    """
+    if incremental:
+        from selector_complexity.solvers import incremental_certificate_search
+        return incremental_certificate_search(
+            axioms, num_vars, max_degree=max_degree,
+            min_degree=2, verbose=verbose)
+
+    # Original non-incremental path
     results = []
 
     for d in range(2, max_degree + 1):
@@ -699,7 +721,8 @@ def _build_family_summary(level, confidence, reasoning, instances, scaling):
 # PUBLIC API: SINGLE INSTANCE
 # =====================================================================
 
-def estimate_level(axioms, num_vars, max_degree=6, verbose=True):
+def estimate_level(axioms, num_vars, max_degree=6, verbose=True,
+                   use_predictor=True, use_patterns=True, incremental=True):
     """Estimate the Selector Complexity level of a polynomial system.
 
     Parameters
@@ -714,6 +737,14 @@ def estimate_level(axioms, num_vars, max_degree=6, verbose=True):
         Maximum IPS certificate degree to search (default 6).
     verbose : bool, optional
         Print progress and diagnostic information (default True).
+    use_predictor : bool, optional
+        Use SCPredictor for fast estimation (default True).
+        If confidence > 0.8, returns without running LSQR.
+    use_patterns : bool, optional
+        Use pattern detection shortcuts (default True).
+        If a pattern matches with high confidence, returns without LSQR.
+    incremental : bool, optional
+        Use incremental matrix construction (default True).
 
     Returns
     -------
@@ -750,7 +781,7 @@ def estimate_level(axioms, num_vars, max_degree=6, verbose=True):
         'structure': {},
     }
 
-    # Phase 1
+    # Phase 1: Structural analysis
     if verbose:
         print("  Phase 1: Structural analysis...")
 
@@ -763,14 +794,101 @@ def estimate_level(axioms, num_vars, max_degree=6, verbose=True):
         print("    Connectivity: {:.2f}".format(structure['connectivity']))
         print()
 
-    # Phase 2
+    # Phase 1.5: Pattern detection shortcuts
+    if use_patterns:
+        if verbose:
+            print("  Phase 1.5: Pattern detection...")
+
+        pattern_result = detect_patterns(axioms, num_vars)
+        evidence['patterns'] = pattern_result
+
+        if (pattern_result['shortcut_available']
+                and pattern_result['shortcut_confidence'] == 'high'):
+            level = pattern_result['shortcut_level']
+            confidence = 'high'
+            reasoning = (
+                "Pattern shortcut: {} detected with high confidence. "
+                "Estimated SC({}) without IPS search.".format(
+                    pattern_result['shortcut_source'], level))
+            summary = _build_summary(level, confidence, reasoning, evidence)
+
+            if verbose:
+                print("    Shortcut: {} -> SC({})".format(
+                    pattern_result['shortcut_source'], level))
+                print()
+                print(summary)
+
+            return {
+                'level': level,
+                'confidence': confidence,
+                'evidence': evidence,
+                'summary': summary,
+            }
+
+        if verbose:
+            if pattern_result['shortcut_available']:
+                print("    Pattern found: {} (confidence: {})".format(
+                    pattern_result['shortcut_source'],
+                    pattern_result['shortcut_confidence']))
+            else:
+                print("    No high-confidence pattern shortcut.")
+            print()
+
+    # Phase 1.7: Predictor shortcut
+    if use_predictor:
+        if verbose:
+            print("  Phase 1.7: SC Predictor...")
+
+        try:
+            features = extract_features(axioms, num_vars)
+            evidence['features'] = features
+
+            predictor = SCPredictor()
+            predictor.fit_from_landscape()
+            pred_result = predictor.predict(features)
+            evidence['predictor'] = pred_result
+
+            if pred_result['confidence'] > 0.8:
+                level = pred_result['predicted_level']
+                confidence = 'medium'  # predictor alone is medium confidence
+                reasoning = (
+                    "Predictor shortcut: SC({}) predicted with {:.0%} confidence. "
+                    "{}".format(level, pred_result['confidence'],
+                                pred_result['reasoning']))
+                summary = _build_summary(level, confidence, reasoning, evidence)
+
+                if verbose:
+                    print("    Predicted: SC({}) (confidence: {:.0%})".format(
+                        level, pred_result['confidence']))
+                    print("    Using predictor shortcut.")
+                    print()
+                    print(summary)
+
+                return {
+                    'level': level,
+                    'confidence': confidence,
+                    'evidence': evidence,
+                    'summary': summary,
+                }
+
+            if verbose:
+                print("    Predicted: SC({}) (confidence: {:.0%}, below threshold)".format(
+                    pred_result['predicted_level'], pred_result['confidence']))
+                print()
+        except Exception:
+            if verbose:
+                print("    Predictor unavailable, continuing with LSQR...")
+                print()
+
+    # Phase 2: IPS certificate search
     if verbose:
         print("  Phase 2: IPS certificate search...")
 
-    certificates = _search_certificates(axioms, num_vars, max_degree, verbose)
+    certificates = _search_certificates(axioms, num_vars, max_degree, verbose,
+                                         incremental=incremental)
     evidence['certificates'] = certificates
 
-    # Phase 3
+    # Phase 3: Growth analysis
     if verbose:
         print()
         print("  Phase 3: Growth analysis...")
@@ -784,7 +902,7 @@ def estimate_level(axioms, num_vars, max_degree=6, verbose=True):
             print("    Degree gap (cert - axiom): {}".format(
                 growth['degree_gap']))
 
-    # Phase 4
+    # Phase 4: Classification
     if verbose:
         print()
         print("  Phase 4: Classification...")

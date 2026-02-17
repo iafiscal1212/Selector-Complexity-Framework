@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "selector-complexity"
-version = "0.2.1"
+version = "0.3.0"
 description = "Selector Complexity Framework: classifying tautologies by selector cost in IPS (Ideal Proof Systems). Proves SC(0) ⊊ SC(1) ⊊ SC(2)."
 readme = "README.md"
 license = "MIT"

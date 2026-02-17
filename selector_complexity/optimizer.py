@@ -8,6 +8,7 @@ by skipping degrees that are clearly insufficient.
 Functions:
     predict_min_degree           -- heuristic degree prediction
     optimized_certificate_search -- accelerated search with plateau detection
+    parallel_certificate_search  -- multiprocessing search across degrees
 
 Author: Carmen Esteban
 License: MIT
@@ -20,7 +21,7 @@ from scipy.sparse.linalg import lsqr
 from math import comb
 
 from selector_complexity.classifier import _analyze_structure
-from selector_complexity.solvers import build_matrix
+from selector_complexity.solvers import build_matrix, build_matrix_tuples
 
 
 def predict_min_degree(axioms, num_vars):
@@ -213,5 +214,110 @@ def optimized_certificate_search(axioms, num_vars, max_degree=10):
         'time_saved_estimate': round(time_saved, 4),
         'plateau_detected': plateau_detected,
         'residuals': residuals,
+        'total_time': round(total_time, 4),
+    }
+
+
+# =====================================================================
+# OPT 2: PARALLEL CERTIFICATE SEARCH
+# =====================================================================
+
+def _search_single_degree(args):
+    """Worker function for parallel search. Must be at module level for pickle.
+
+    Parameters
+    ----------
+    args : tuple
+        (axioms, num_vars, degree, atol)
+
+    Returns
+    -------
+    dict with degree result
+    """
+    axioms, num_vars, d, atol = args
+    t0 = time.time()
+
+    num_monoms_est = sum(comb(num_vars, k) for k in range(d + 1))
+    if num_monoms_est > 500000:
+        return {
+            'degree': d, 'feasible': False, 'residual': 1.0,
+            'size': 0, 'num_monoms': int(num_monoms_est),
+            'num_unknowns': 0, 'time': 0.0, 'skipped': True,
+        }
+
+    A, b, nm, nu = build_matrix_tuples(axioms, num_vars, d)
+
+    if nu == 0:
+        elapsed = time.time() - t0
+        return {
+            'degree': d, 'feasible': False, 'residual': 1.0,
+            'size': 0, 'num_monoms': nm,
+            'num_unknowns': 0, 'time': elapsed, 'skipped': False,
+        }
+
+    sol = lsqr(A, b, atol=atol, btol=atol, iter_lim=10000)
+    x = sol[0]
+    residual = float(np.linalg.norm(A @ x - b))
+    size = int(np.sum(np.abs(x) > 1e-8))
+    elapsed = time.time() - t0
+
+    return {
+        'degree': d, 'feasible': residual < 1e-6, 'residual': residual,
+        'size': size, 'num_monoms': nm,
+        'num_unknowns': nu, 'time': elapsed, 'skipped': False,
+    }
+
+
+def parallel_certificate_search(axioms, num_vars, max_degree=10,
+                                 min_degree=2, max_workers=None, atol=1e-12):
+    """Search for IPS certificates in parallel across degrees.
+
+    Each degree is searched as an independent task using ProcessPoolExecutor.
+    Useful when you want to test multiple degrees simultaneously.
+
+    Parameters
+    ----------
+    axioms : list of list of (coef, frozenset) tuples
+    num_vars : int
+    max_degree : int
+    min_degree : int
+    max_workers : int or None
+        Number of parallel workers. None = os.cpu_count().
+    atol : float
+
+    Returns
+    -------
+    dict
+        'found' : bool
+        'certificate' : dict or None (best/lowest degree certificate)
+        'all_results' : list of dict (per-degree results)
+        'total_time' : float
+    """
+    from concurrent.futures import ProcessPoolExecutor
+
+    t0 = time.time()
+    degrees = list(range(min_degree, max_degree + 1))
+
+    tasks = [(axioms, num_vars, d, atol) for d in degrees]
+
+    results = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        for result in executor.map(_search_single_degree, tasks):
+            results.append(result)
+
+    # Sort by degree and find best certificate
+    results.sort(key=lambda r: r['degree'])
+    certificate = None
+    for r in results:
+        if r['feasible']:
+            certificate = r
+            break
+
+    total_time = time.time() - t0
+
+    return {
+        'found': certificate is not None,
+        'certificate': certificate,
+        'all_results': results,
         'total_time': round(total_time, 4),
     }
