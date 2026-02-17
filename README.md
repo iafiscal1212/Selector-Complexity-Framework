@@ -62,6 +62,42 @@ result = test_s_only_feasibility(3)
 print(f"PHP-C s-only feasible? {result}")  # False
 ```
 
+### Automatic Classification & Hardness Analysis (v0.2.0)
+
+```python
+from selector_complexity import (
+    recommend_strategy, quantify_hardness, compare_hardness,
+    optimized_certificate_search, predict_min_degree,
+    tseitin_axioms, petersen_graph, estimate_level,
+)
+
+# Classify any system
+axioms, nv, _ = php_axioms(3)
+result = estimate_level(axioms, nv)
+
+# Get proof strategy recommendation
+strategy = recommend_strategy(axioms, nv)
+print(strategy['strategy'])    # 'direct_ips'
+print(strategy['reasoning'])   # explains why
+
+# Optimized certificate search (skips unnecessary degrees)
+result = optimized_certificate_search(axioms, nv, max_degree=8)
+print(f"Skipped degrees: {result['degrees_skipped']}")
+
+# Tseitin on expander graphs
+edges, n_verts = petersen_graph()
+tax, tnv, _ = tseitin_axioms(edges, n_verts)
+h = quantify_hardness(tax, tnv)
+print(f"Hardness: {h['hardness_score']}/100")  # ~69
+
+# Compare multiple systems
+systems = [
+    {'name': 'PHP(3)', 'axioms': php_axioms(3)[0], 'num_vars': php_axioms(3)[1]},
+    {'name': 'Tseitin-Petersen', 'axioms': tax, 'num_vars': tnv},
+]
+print(compare_hardness(systems))
+```
+
 ---
 
 ## What problem does this solve?
@@ -143,10 +179,17 @@ For comparison, PHP(n=3) and PHP-C(n=3) find certificates at d=4.
 ```
 Selector-Complexity-Framework/
 ├── selector_complexity/             # Python package
-│   ├── core.py                      #   PolynomialSystem, SelectorFamily, IPSCertificate
+│   ├── core.py                      #   PolynomialSystem, SelectorFamily
 │   ├── php.py                       #   PHP, PHP-E, PHP-C axiom builders
+│   ├── tseitin.py                   #   Tseitin axioms + graph constructors
 │   ├── selectors.py                 #   Selector construction and feasibility
-│   └── solvers.py                   #   IPS matrix builder and LSQR solver
+│   ├── solvers.py                   #   IPS matrix builder and LSQR solver
+│   ├── classifier.py               #   Automatic SC-level classifier
+│   ├── strategy.py                  #   Proof strategy advisor
+│   ├── optimizer.py                 #   Optimized certificate search
+│   ├── hardness.py                  #   Hardness quantifier (0-100 score)
+│   ├── discovery.py                 #   Selector discovery engine
+│   └── discovery_strategies.py      #   5 automated discovery strategies
 ├── theory/                          # Computational proofs (01–10)
 │   ├── 01_definitions.py            #   Formal definitions + verification
 │   ├── 02_php_level0.py             #   PROOF: PHP is Level 0

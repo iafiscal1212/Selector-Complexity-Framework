@@ -93,9 +93,10 @@ def circulant_graph(n, generators):
 
 
 def random_regular(n, d, seed=42):
-    """Random d-regular graph on n vertices (pairing model).
+    """Random d-regular graph on n vertices.
 
-    Uses a simple retry-based construction. Requires n*d to be even.
+    Uses repeated pairing model with greedy fallback.
+    Requires n*d to be even.
 
     Parameters
     ----------
@@ -115,8 +116,9 @@ def random_regular(n, d, seed=42):
         raise ValueError("n * d must be even")
 
     rng = random.Random(seed)
+    target_edges = n * d // 2
 
-    for _ in range(100):  # retry attempts
+    for attempt in range(1000):
         stubs = []
         for v in range(n):
             stubs.extend([v] * d)
@@ -135,10 +137,32 @@ def random_regular(n, d, seed=42):
                 break
             edges.add(edge)
 
-        if ok and len(edges) == n * d // 2:
+        if ok and len(edges) == target_edges:
             return sorted(edges), n
 
-    raise RuntimeError("Failed to generate random regular graph after 100 attempts")
+    # Fallback: greedy construction
+    degree = [0] * n
+    edges = set()
+    vertices = list(range(n))
+    rng.shuffle(vertices)
+
+    for u in vertices:
+        candidates = [v for v in range(n)
+                      if v != u and degree[v] < d
+                      and (min(u, v), max(u, v)) not in edges]
+        rng.shuffle(candidates)
+        while degree[u] < d and candidates:
+            v = candidates.pop()
+            if degree[v] < d:
+                edges.add((min(u, v), max(u, v)))
+                degree[u] += 1
+                degree[v] += 1
+
+    if len(edges) == target_edges:
+        return sorted(edges), n
+
+    raise RuntimeError(
+        "Failed to generate {}-regular graph on {} vertices".format(d, n))
 
 
 # =====================================================================

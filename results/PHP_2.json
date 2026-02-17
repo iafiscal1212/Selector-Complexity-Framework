@@ -1,0 +1,30 @@
+{
+  "system": "PHP(2)",
+  "n": 6,
+  "level_estimate": 0,
+  "candidates_tested": 79,
+  "candidates_verified": 78,
+  "best_selector": {
+    "num_selectors": 4,
+    "total_size": 9,
+    "degree": 2,
+    "source": "template:product:vars0_1"
+  },
+  "cert_without_selectors": {
+    "degree": 4,
+    "size": 231
+  },
+  "cert_with_selectors": {
+    "degree": 1,
+    "size": 5
+  },
+  "all_candidates": [],
+  "timings": {
+    "baseline": 0.004,
+    "exhaustive": 0.238,
+    "template": 0.003,
+    "ips_guided": 0.0,
+    "subspace_projection": 0.001,
+    "variable_group": 0.001
+  }
+}

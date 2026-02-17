@@ -1,0 +1,30 @@
+{
+  "system": "Tseitin(8)",
+  "n": 8,
+  "level_estimate": 0,
+  "candidates_tested": 91,
+  "candidates_verified": 90,
+  "best_selector": {
+    "num_selectors": 4,
+    "total_size": 9,
+    "degree": 2,
+    "source": "template:product:vars1_2"
+  },
+  "cert_without_selectors": {
+    "degree": 1,
+    "size": 8
+  },
+  "cert_with_selectors": {
+    "degree": 1,
+    "size": 11
+  },
+  "all_candidates": [],
+  "timings": {
+    "baseline": 0.0,
+    "exhaustive": 0.464,
+    "template": 0.001,
+    "ips_guided": 0.001,
+    "subspace_projection": 0.004,
+    "variable_group": 0.007
+  }
+}
