@@ -347,8 +347,10 @@ class TemplateStrategy(BaseStrategy):
         """
         var_sets = []
 
-        # Auxiliary variables from var_maps
-        for key in ("var_y", "var_s"):
+        # Auxiliary variables from var_maps (scan all non-primary keys)
+        for key in sorted(self.var_maps.keys()):
+            if key == "var_x":
+                continue
             if key in self.var_maps:
                 aux_vars = sorted(set(self.var_maps[key].values()))
                 for size in range(1, min(5, len(aux_vars) + 1)):

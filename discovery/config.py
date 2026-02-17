@@ -72,4 +72,19 @@ JOB_QUEUE = [
     ("SubsetSum(3)", "subset_sum",  3),
     ("SubsetSum(4)", "subset_sum",  4),
     ("SubsetSum(5)", "subset_sum",  5),
+
+    # --- Factoring: auxiliar z_{i,j}, SC(2)/SC(3) ---
+    ("Factoring(4)",   "factoring",  4),
+    ("Factoring(6)",   "factoring",  6),
+    ("Factoring(8)",   "factoring",  8),
+
+    # --- Goldreich PRG: auxiliar a_{j}, SC(2)/SC(3) ---
+    ("Goldreich(8)",   "goldreich",  8),
+    ("Goldreich(12)",  "goldreich",  12),
+    ("Goldreich(16)",  "goldreich",  16),
+
+    # --- Binary LWE: auxiliar d_{i,k} (DP), SC(1)/SC(2) ---
+    ("BinLWE(6)",      "lwe",        6),
+    ("BinLWE(8)",      "lwe",        8),
+    ("BinLWE(10)",     "lwe",        10),
 ]

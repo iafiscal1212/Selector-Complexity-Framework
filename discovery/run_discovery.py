@@ -166,6 +166,329 @@ def kxor_axioms(n, k=3, num_clauses=None, seed=42):
     return axioms, num_vars, var_x
 
 
+# --- Factoring builder ---
+
+def factoring_axioms(n, seed=42):
+    """Build unsatisfiable factoring instance: find P,Q of n bits with P*Q = N.
+
+    N is chosen as a prime > 2^n, so P*Q = N requires {P,Q} = {1,N},
+    but N doesn't fit in n bits → unsatisfiable.
+
+    Variables:
+      - var_p[i]: bit i of P  (n primary vars)
+      - var_q[j]: bit j of Q  (n primary vars)
+      - var_z[(i,j)]: partial product p_i * q_j  (n² auxiliary vars)
+      Total: 2n + n²
+
+    Axioms:
+      a) z_{i,j} - p_i * q_j = 0          (n² axioms, degree 2)
+      b) sum_{i,j} 2^{i+j} * z_{i,j} - N = 0  (1 axiom, linear in z)
+
+    Returns (axioms, num_vars, var_p, var_q, var_z).
+    """
+    # Find smallest prime > 2^n by trial division (sufficient for small n)
+    def _next_prime_above(x):
+        c = x + 1 if x % 2 == 0 else x + 2
+        while True:
+            if all(c % d != 0 for d in range(2, int(c**0.5) + 1)):
+                return c
+            c += 2
+    N = _next_prime_above(2 ** n)
+
+    # Variable allocation
+    idx = 0
+    var_p = {}
+    for i in range(n):
+        var_p[i] = idx
+        idx += 1
+
+    var_q = {}
+    for j in range(n):
+        var_q[j] = idx
+        idx += 1
+
+    var_z = {}
+    for i in range(n):
+        for j in range(n):
+            var_z[(i, j)] = idx
+            idx += 1
+    num_vars = idx
+
+    axioms = []
+
+    # (a) z_{i,j} - p_i * q_j = 0
+    for i in range(n):
+        for j in range(n):
+            axioms.append([
+                (1.0, frozenset([var_z[(i, j)]])),
+                (-1.0, frozenset([var_p[i], var_q[j]])),
+            ])
+
+    # (b) sum_{i,j} 2^{i+j} * z_{i,j} - N = 0
+    target_terms = [(-float(N), frozenset())]
+    for i in range(n):
+        for j in range(n):
+            coeff = float(2 ** (i + j))
+            target_terms.append((coeff, frozenset([var_z[(i, j)]])))
+    axioms.append(target_terms)
+
+    return axioms, num_vars, var_p, var_q, var_z
+
+
+# --- Goldreich PRG builder ---
+
+def goldreich_prg_axioms(n, stretch=2, k=5, seed=42):
+    """Build unsatisfiable Goldreich PRG inversion instance.
+
+    Uses predicate P5: y_j = x_{s1} XOR (x_{s2}*x_{s3}) XOR (x_{s4}*x_{s5}).
+    Plants a seed, computes output, flips last bit → contradiction.
+
+    Variables:
+      - var_x[i]: seed bits  (n primary vars)
+      - var_a[(j,0)], var_a[(j,1)]: AND gate outputs  (2m auxiliary vars)
+      Total: n + 2m where m = stretch * n
+
+    Axioms per output bit j:
+      a) a_{j,0} - x_{s2}*x_{s3} = 0
+      b) a_{j,1} - x_{s4}*x_{s5} = 0
+      c) XOR polynomial: x_{s1} + a_{j,0} + a_{j,1}
+         - 2*x_{s1}*a_{j,0} - 2*x_{s1}*a_{j,1} - 2*a_{j,0}*a_{j,1}
+         + 4*x_{s1}*a_{j,0}*a_{j,1} - y_j = 0
+
+    Returns (axioms, num_vars, var_x, var_a).
+    """
+    rng = random.Random(seed)
+    m = stretch * n
+
+    # Variable allocation
+    idx = 0
+    var_x = {}
+    for i in range(n):
+        var_x[i] = idx
+        idx += 1
+
+    var_a = {}
+    for j in range(m):
+        var_a[(j, 0)] = idx
+        idx += 1
+        var_a[(j, 1)] = idx
+        idx += 1
+    num_vars = idx
+
+    # Generate random neighborhoods (k=5 indices per output bit)
+    neighborhoods = []
+    for j in range(m):
+        nbrs = sorted(rng.sample(range(n), min(k, n)))
+        neighborhoods.append(nbrs)
+
+    # Plant seed and compute PRG output
+    planted = [rng.randint(0, 1) for _ in range(n)]
+    output = []
+    for j in range(m):
+        s = neighborhoods[j]
+        # P5: x_{s1} XOR (x_{s2}*x_{s3}) XOR (x_{s4}*x_{s5})
+        s1 = planted[s[0]]
+        and1 = planted[s[1]] * planted[s[2]] if len(s) > 2 else 0
+        and2 = planted[s[3]] * planted[s[4]] if len(s) > 4 else 0
+        y_j = s1 ^ and1 ^ and2
+        output.append(y_j)
+
+    # Flip last bit to make it unsatisfiable
+    output[-1] ^= 1
+
+    axioms = []
+
+    for j in range(m):
+        s = neighborhoods[j]
+        xs1 = var_x[s[0]]
+        xs2 = var_x[s[1]] if len(s) > 1 else var_x[s[0]]
+        xs3 = var_x[s[2]] if len(s) > 2 else var_x[s[0]]
+        xs4 = var_x[s[3]] if len(s) > 3 else var_x[s[0]]
+        xs5 = var_x[s[4]] if len(s) > 4 else var_x[s[0]]
+
+        aj0 = var_a[(j, 0)]
+        aj1 = var_a[(j, 1)]
+        y_j = output[j]
+
+        # (a) a_{j,0} - x_{s2} * x_{s3} = 0
+        axioms.append([
+            (1.0, frozenset([aj0])),
+            (-1.0, frozenset([xs2, xs3])),
+        ])
+
+        # (b) a_{j,1} - x_{s4} * x_{s5} = 0
+        axioms.append([
+            (1.0, frozenset([aj1])),
+            (-1.0, frozenset([xs4, xs5])),
+        ])
+
+        # (c) 3-XOR polynomial: x_{s1} XOR a_{j,0} XOR a_{j,1} = y_j
+        # XOR(a,b,c) = a + b + c - 2ab - 2ac - 2bc + 4abc
+        axioms.append([
+            (-float(y_j), frozenset()),
+            (1.0, frozenset([xs1])),
+            (1.0, frozenset([aj0])),
+            (1.0, frozenset([aj1])),
+            (-2.0, frozenset([xs1, aj0])),
+            (-2.0, frozenset([xs1, aj1])),
+            (-2.0, frozenset([aj0, aj1])),
+            (4.0, frozenset([xs1, aj0, aj1])),
+        ])
+
+    return axioms, num_vars, var_x, var_a
+
+
+# --- Binary LWE helpers ---
+
+def _find_lwe_instance(n, m, t, start_seed, max_seeds=500):
+    """Search for a binary matrix A and vector b giving an UNSAT LWE instance.
+
+    Tries successive seeds for A until finding one where the covering
+    radius of the code {A*s mod 2} exceeds t.  Returns (A, b).
+    """
+    for seed in range(start_seed, start_seed + max_seeds):
+        rng = random.Random(seed)
+        A = [[rng.randint(0, 1) for _ in range(n)] for _ in range(m)]
+
+        # Compute all syndromes
+        all_syndromes = set()
+        for s_bits in range(2 ** n):
+            s_vec = [(s_bits >> j) & 1 for j in range(n)]
+            syndrome = tuple(
+                sum(A[i][j] * s_vec[j] for j in range(n)) % 2
+                for i in range(m))
+            all_syndromes.add(syndrome)
+
+        # Sample b candidates and find one with min distance > t
+        rng_b = random.Random(seed + 10000)
+        best_b = None
+        best_min_weight = -1
+        n_candidates = min(5000, 2 ** m)
+
+        for _ in range(n_candidates):
+            b_cand = tuple(rng_b.randint(0, 1) for _ in range(m))
+            min_w = m + 1
+            for syn in all_syndromes:
+                w = sum(b_cand[i] ^ syn[i] for i in range(m))
+                min_w = min(min_w, w)
+                if min_w <= t:
+                    break
+            if min_w > best_min_weight:
+                best_min_weight = min_w
+                best_b = b_cand
+
+        if best_min_weight > t:
+            return A, list(best_b)
+
+    return None, None
+
+
+# --- Binary LWE builder ---
+
+def binary_lwe_axioms(n, m_factor=2, error_bound=None, seed=42):
+    """Build unsatisfiable binary LWE instance: A*s + e = b (mod 2).
+
+    Generates random binary matrix A, then finds b such that for all
+    secrets s, the error e = b - A*s (mod 2) has Hamming weight > t.
+
+    Automatically searches over matrix seeds until a code with
+    covering radius > t is found.
+
+    Variables:
+      - var_s[j]: secret bits  (n primary vars)
+      - var_e[i]: error bits   (m primary vars)
+      - var_d[(i,k)]: DP table for Hamming weight bound  ((m+1)*(t+1) auxiliary)
+      Total: n + m + (m+1)*(t+1)
+
+    Axioms:
+      a) Sample XOR: for each row i of A, XOR encoding of A[i]*s + e_i = b_i
+      b) DP Hamming weight recurrence
+      c) Feasibility: d_{m,0} + d_{m,1} + ... + d_{m,t} = 1
+
+    Returns (axioms, num_vars, var_s, var_e, var_d).
+    """
+    m = m_factor * n
+    t = error_bound if error_bound is not None else max(1, m // 4)
+
+    # Search for a matrix seed whose code has covering radius > t
+    A, b = _find_lwe_instance(n, m, t, seed)
+
+    assert b is not None, (
+        f"binary_lwe_axioms: could not find UNSAT instance for n={n}, t={t}"
+    )
+
+    # Variable allocation
+    idx = 0
+    var_s = {}
+    for j in range(n):
+        var_s[j] = idx
+        idx += 1
+
+    var_e = {}
+    for i in range(m):
+        var_e[i] = idx
+        idx += 1
+
+    var_d = {}
+    for i in range(m + 1):
+        for k in range(t + 1):
+            var_d[(i, k)] = idx
+            idx += 1
+    num_vars = idx
+
+    axioms = []
+
+    # (a) Sample XOR constraints: for each row i, A[i]*s XOR e_i = b_i
+    for i in range(m):
+        # Collect variables involved in XOR: {s_j : A[i][j]=1} union {e_i}
+        xor_vars = [var_s[j] for j in range(n) if A[i][j] == 1]
+        xor_vars.append(var_e[i])
+        b_i = b[i]
+
+        # Encode XOR using elementary symmetric polynomials (same as k-XOR)
+        kk = len(xor_vars)
+        terms = [(-float(b_i), frozenset())]
+        for j_idx in range(1, kk + 1):
+            coeff = (-2.0) ** (j_idx - 1)
+            for subset in combinations(xor_vars, j_idx):
+                terms.append((coeff, frozenset(subset)))
+        axioms.append(terms)
+
+    # (b) DP Hamming weight recurrence
+    # Base: d_{0,0} = 1
+    axioms.append([
+        (-1.0, frozenset()),
+        (1.0, frozenset([var_d[(0, 0)]])),
+    ])
+    # Base: d_{0,k} = 0 for k > 0
+    for k in range(1, t + 1):
+        axioms.append([
+            (1.0, frozenset([var_d[(0, k)]])),
+        ])
+
+    # Recurrence: d_{i,k} = (1 - e_i) * d_{i-1,k} + e_i * d_{i-1,k-1}
+    # → d_{i,k} - d_{i-1,k} + e_i * d_{i-1,k} - e_i * d_{i-1,k-1} = 0
+    for i in range(1, m + 1):
+        ei = var_e[i - 1]
+        for k in range(t + 1):
+            terms = [
+                (1.0, frozenset([var_d[(i, k)]])),
+                (-1.0, frozenset([var_d[(i - 1, k)]])),
+                (1.0, frozenset([ei, var_d[(i - 1, k)]])),
+            ]
+            if k - 1 >= 0:
+                terms.append((-1.0, frozenset([ei, var_d[(i - 1, k - 1)]])))
+            axioms.append(terms)
+
+    # (c) Feasibility: d_{m,0} + ... + d_{m,t} = 1
+    feas_terms = [(-1.0, frozenset())]
+    for k in range(t + 1):
+        feas_terms.append((1.0, frozenset([var_d[(m, k)]])))
+    axioms.append(feas_terms)
+
+    return axioms, num_vars, var_s, var_e, var_d
+
+
 # --- Subset-Sum DP builder ---
 
 def subset_sum_axioms(n_items, max_weight=4, seed=42):
@@ -274,6 +597,22 @@ def build_job(system_type, n):
     elif system_type == "subset_sum":
         axioms, num_vars, var_x, var_c = subset_sum_axioms(n)
         return axioms, num_vars, {"var_x": var_x, "var_c": var_c}
+
+    elif system_type == "factoring":
+        axioms, num_vars, var_p, var_q, var_z = factoring_axioms(n)
+        var_x = {("p", k): v for k, v in var_p.items()}
+        var_x.update({("q", k): v for k, v in var_q.items()})
+        return axioms, num_vars, {"var_x": var_x, "var_z": var_z}
+
+    elif system_type == "goldreich":
+        axioms, num_vars, var_x, var_a = goldreich_prg_axioms(n)
+        return axioms, num_vars, {"var_x": var_x, "var_a": var_a}
+
+    elif system_type == "lwe":
+        axioms, num_vars, var_s, var_e, var_d = binary_lwe_axioms(n)
+        var_x = {("s", k): v for k, v in var_s.items()}
+        var_x.update({("e", k): v for k, v in var_e.items()})
+        return axioms, num_vars, {"var_x": var_x, "var_d": var_d}
 
     else:
         raise ValueError(f"Unknown system type: {system_type}")
