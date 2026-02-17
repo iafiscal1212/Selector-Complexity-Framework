@@ -14,7 +14,7 @@ Author: Carmen Esteban
 License: MIT
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"  # strategy, optimizer, hardness, tseitin modules
 __author__ = "Carmen Esteban"
 
 from selector_complexity.core import PolynomialSystem, SelectorFamily
@@ -25,4 +25,15 @@ from selector_complexity.selectors import (
     build_phpc_explicit_selectors,
     enumerate_vc,
     test_s_only_feasibility,
+)
+from selector_complexity.classifier import estimate_level, estimate_level_family
+from selector_complexity.strategy import recommend_strategy
+from selector_complexity.optimizer import predict_min_degree, optimized_certificate_search
+from selector_complexity.hardness import quantify_hardness, compare_hardness, hardness_report
+from selector_complexity.tseitin import (
+    tseitin_axioms,
+    petersen_graph,
+    cube_graph,
+    circulant_graph,
+    random_regular,
 )

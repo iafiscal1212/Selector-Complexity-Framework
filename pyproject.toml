@@ -4,19 +4,42 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "selector-complexity"
-version = "0.1.0"
-description = "Selector Complexity Framework for IPS proof complexity"
+version = "0.2.0"
+description = "Selector Complexity Framework: classifying tautologies by selector cost in IPS (Ideal Proof Systems). Proves SC(0) ⊊ SC(1) ⊊ SC(2)."
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [{name = "Carmen Esteban", email = "carmen@research.dev"}]
 requires-python = ">=3.8"
 dependencies = [
     "numpy>=1.20",
     "scipy>=1.7",
 ]
+keywords = [
+    "proof-complexity",
+    "IPS",
+    "ideal-proof-system",
+    "pigeonhole-principle",
+    "selector-complexity",
+    "computational-algebra",
+    "tautology-hierarchy",
+    "lower-bounds",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
 
 [project.urls]
 Homepage = "https://github.com/iafiscal1212/Selector-Complexity-Framework"
+Source = "https://github.com/iafiscal1212/Selector-Complexity-Framework"
+Issues = "https://github.com/iafiscal1212/Selector-Complexity-Framework/issues"
 
 [tool.setuptools.packages.find]
 include = ["selector_complexity*"]

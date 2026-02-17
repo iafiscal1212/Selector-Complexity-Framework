@@ -66,3 +66,13 @@ def test_s_only_feasibility(n, max_degree=3):
             eval_matrix[i, j] = prod
     unique_rows = np.unique(eval_matrix, axis=0)
     return len(unique_rows) == 1, len(cycle_assignments), len(unique_rows)
+
+
+def enumerate_vc(n):
+    """Enumerate valid configurations (placeholder for __init__ compatibility)."""
+    raise NotImplementedError("enumerate_vc not yet implemented")
+
+
+def build_phpc_explicit_selectors(n):
+    """Build explicit selectors for PHP-C (placeholder for __init__ compatibility)."""
+    raise NotImplementedError("build_phpc_explicit_selectors not yet implemented")
