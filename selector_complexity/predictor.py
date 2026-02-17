@@ -192,7 +192,7 @@ def extract_features(axioms, num_vars):
 # =====================================================================
 
 def generate_training_data():
-    """Generate (features, sc_level) pairs from the 7 known families.
+    """Generate (features, sc_level) pairs from the 10 known families.
 
     Uses small instances for speed. Returns list of (features_dict, int_level).
     Level '3?' is encoded as 3.
@@ -203,6 +203,9 @@ def generate_training_data():
     """
     from selector_complexity.php import php_axioms, phpe_axioms, phpc_axioms
     from selector_complexity.tseitin import tseitin_axioms, circulant_graph
+    from selector_complexity.families import (
+        factoring_axioms, goldreich_prg_axioms, binary_lwe_axioms,
+    )
 
     data = []
 
@@ -232,6 +235,33 @@ def generate_training_data():
         edges, nv_graph = circulant_graph(n, [1, 3])
         ax, nv = tseitin_axioms(edges, nv_graph)[:2]
         data.append((extract_features(ax, nv), 3))
+
+    # 3-XOR -> SC(0) (multilinear encoding is easy for LSQR)
+    from discovery.landscape import kxor_hard_axioms
+    for n in [8, 10]:
+        ax, nv = kxor_hard_axioms(n)
+        data.append((extract_features(ax, nv), 0))
+
+    # Subset-Sum -> SC(0) (DP encoding gives constant-degree certificates)
+    from discovery.landscape import subset_sum_axioms
+    for n in [2, 3]:
+        ax, nv = subset_sum_axioms(n)
+        data.append((extract_features(ax, nv), 0))
+
+    # Factoring -> SC(1) (observed from landscape runs)
+    for n in [4]:
+        ax, nv = factoring_axioms(n)[:2]
+        data.append((extract_features(ax, nv), 1))
+
+    # Goldreich-PRG -> SC(2) (expected hard PRG inversion)
+    for n in [8]:
+        ax, nv = goldreich_prg_axioms(n)[:2]
+        data.append((extract_features(ax, nv), 2))
+
+    # Binary-LWE -> SC(1) (observed from landscape runs)
+    for n in [4]:
+        ax, nv = binary_lwe_axioms(n)[:2]
+        data.append((extract_features(ax, nv), 1))
 
     return data
 

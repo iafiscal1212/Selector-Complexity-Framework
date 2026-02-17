@@ -123,7 +123,7 @@ def _search_certificates(axioms, num_vars, max_degree, verbose,
 
     for d in range(2, max_degree + 1):
         num_monoms_est = sum(comb(num_vars, k) for k in range(d + 1))
-        if num_monoms_est > 500000:
+        if num_monoms_est > 1000000:
             if verbose:
                 print("    d={}: ~{} monomials, skipping (too large)".format(
                     d, int(num_monoms_est)))

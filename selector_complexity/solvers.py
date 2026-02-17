@@ -515,7 +515,7 @@ def incremental_certificate_search(axioms, num_vars, max_degree=10,
 
     for d in range(min_degree, max_degree + 1):
         num_monoms_est = sum(math_comb(num_vars, k) for k in range(d + 1))
-        if num_monoms_est > 500000:
+        if num_monoms_est > 1000000:
             if verbose:
                 print("    d={}: ~{} monomials, skipping (too large)".format(
                     d, int(num_monoms_est)))

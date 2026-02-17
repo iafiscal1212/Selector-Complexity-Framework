@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Systematic SC Landscape Mapping (v2)
+Systematic SC Landscape Mapping (v3)
 =====================================
 
-Maps 7 tautology families across the Selector Complexity hierarchy.
+Maps 10 tautology families across the Selector Complexity hierarchy.
 
-Fixes over v1:
-    1. Adaptive max_degree per family (no false SC(3?) from insufficient depth)
-    2. Family-level classification via estimate_level_family (not single-instance)
-    3. Hard 3-XOR builder using GF(2) elimination (global contradiction)
+Fixes over v2:
+    1. Added Factoring, Goldreich-PRG, Binary-LWE families
+    2. Corrected expected_sc for 3-XOR and Subset-Sum (genuinely SC(0))
+    3. Monomial cap raised to 1M (PHP-E(4) now feasible at d=6)
 
 Author: Carmen Esteban
 """
@@ -28,6 +28,7 @@ from selector_complexity import (
     recommend_strategy,
     quantify_hardness, compare_hardness,
     estimate_level_family,
+    factoring_axioms, goldreich_prg_axioms, binary_lwe_axioms,
 )
 from selector_complexity.classifier import _analyze_structure, _search_certificates
 
@@ -218,7 +219,7 @@ FAMILIES = [
     {
         'name': '3-XOR',
         'description': 'Random 3-XOR with GF(2) global contradiction',
-        'expected_sc': '2-3?',
+        'expected_sc': 0,
         'builder': lambda n: kxor_hard_axioms(n),
         'n_values': [8, 10, 12, 15],
         'max_degree': 8,
@@ -226,10 +227,34 @@ FAMILIES = [
     {
         'name': 'Subset-Sum',
         'description': 'Subset-Sum DP (even weights, odd target)',
-        'expected_sc': '1-2?',
+        'expected_sc': 0,
         'builder': lambda n: subset_sum_axioms(n),
         'n_values': [2, 3],
         'max_degree': 6,    # many vars from DP table
+    },
+    {
+        'name': 'Factoring',
+        'description': 'Integer factoring (prime > 2^n)',
+        'expected_sc': '1-2?',
+        'builder': lambda n: factoring_axioms(n)[:2],
+        'n_values': [4, 6],
+        'max_degree': 6,
+    },
+    {
+        'name': 'Goldreich-PRG',
+        'description': 'Goldreich PRG inversion (P5 predicate)',
+        'expected_sc': '2-3?',
+        'builder': lambda n: goldreich_prg_axioms(n)[:2],
+        'n_values': [8, 12],
+        'max_degree': 5,
+    },
+    {
+        'name': 'Binary-LWE',
+        'description': 'Binary LWE with Hamming weight bound',
+        'expected_sc': '1-2?',
+        'builder': lambda n: binary_lwe_axioms(n)[:2],
+        'n_values': [4, 6],
+        'max_degree': 4,
     },
 ]
 
@@ -242,8 +267,8 @@ def run_landscape():
     t_start = time.time()
 
     print("=" * 76)
-    print("  SELECTOR COMPLEXITY LANDSCAPE MAP v2")
-    print("  7 families — adaptive degree — family-level classification")
+    print("  SELECTOR COMPLEXITY LANDSCAPE MAP v3")
+    print("  10 families — adaptive degree — family-level classification")
     print("=" * 76)
     print()
 

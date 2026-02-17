@@ -14,7 +14,7 @@ Author: Carmen Esteban
 License: MIT
 """
 
-__version__ = "0.3.0"  # computational optimizations: patterns, incremental, predictor, parallel
+__version__ = "0.4.0"  # landscape expansion: 3 new families, monomial cap 1M
 __author__ = "Carmen Esteban"
 
 from selector_complexity.core import PolynomialSystem, SelectorFamily
@@ -54,4 +54,9 @@ from selector_complexity.predictor import (
     extract_features,
     SCPredictor,
     generate_training_data,
+)
+from selector_complexity.families import (
+    factoring_axioms,
+    goldreich_prg_axioms,
+    binary_lwe_axioms,
 )
