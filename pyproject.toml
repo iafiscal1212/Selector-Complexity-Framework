@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "selector-complexity"
+version = "0.1.0"
+description = "Selector Complexity Framework for IPS proof complexity"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Carmen Esteban", email = "carmen@research.dev"}]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.20",
+    "scipy>=1.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/iafiscal1212/Selector-Complexity-Framework"
+
+[tool.setuptools.packages.find]
+include = ["selector_complexity*"]
