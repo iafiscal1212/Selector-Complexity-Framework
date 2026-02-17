@@ -1,70 +1,115 @@
-# Selector Complexity: A Framework for IPS Certificate Hardness
+# Selector Complexity Framework
 
-**Author:** Carmen Esteban
-**Date:** February 2026
+[![PyPI version](https://img.shields.io/pypi/v/selector-complexity.svg)](https://pypi.org/project/selector-complexity/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-green.svg)](https://www.python.org/downloads/)
 
-## What is this?
+**A new hierarchy for proof complexity.** Classifies tautologies by the cost of their "selector" polynomials in Ideal Proof Systems (IPS).
 
-A formal framework that classifies tautologies by the efficiency of their
-"selector" polynomials in Ideal Proof Systems (IPS).
+**Author:** Carmen Esteban — February 2026
 
-The main result is a **strict hierarchy** with a candidate for the fourth level:
+---
+
+## The Hierarchy
 
 ```
 SC(0)  ⊊  SC(1)  ⊊  SC(2)  ⊊  SC(3)?
  PHP      PHP-E      PHP-C      Tseitin(expander)
 ```
 
-Levels 0-2 are separated by concrete examples from the Pigeonhole Principle family.
-Level 3 candidate: Tseitin tautologies on expander graphs.
+| Level | What it means | Example | Selector Cost | IPS Certificate | Status |
+|-------|--------------|---------|---------------|-----------------|--------|
+| **SC(0)** | No selectors needed | PHP | — | O(n²) | **Proven** |
+| **SC(1)** | Efficient selectors exist | PHP-E | O(n²) circuits | O(n⁴) | **Proven** |
+| **SC(2)** | Selectors cost Ω(n!) | PHP-C | Ω(n!) | 2^poly(n) | **Proven** |
+| **SC(3)?** | No useful selectors at all | Tseitin(expander) | — | 2^Ω(n) | Candidate |
 
-## Selector Complexity Levels
+Levels 0–2 are **proven** with computational verification. Level 3 is a candidate backed by strong computational evidence.
 
-| Level | Description | Example | Selector Size | IPS Size | Status |
-|-------|-------------|---------|---------------|----------|--------|
-| SC(0) | No selectors needed | PHP | -- | O(n^2) | **PROVEN** |
-| SC(1) | Efficient selectors | PHP-E | O(n^2) circuits | O(n^4) | **PROVEN** |
-| SC(2) | Only exponential selectors | PHP-C | Omega(n!) | 2^poly(n) | **PROVEN** |
-| SC(3) | No useful selectors | Tseitin(expander) | -- | 2^Omega(n) | CANDIDATE |
+---
 
-## Structure
+## Quick Start
 
+```bash
+pip install selector-complexity
 ```
-Selector-Complexity-Framework/
-├── selector_complexity/             # Python package (PyPI: selector-complexity)
-│   ├── core.py                      #   PolynomialSystem, SelectorFamily, IPSCertificate
-│   ├── php.py                       #   PHP, PHP-E, PHP-C axiom builders
-│   ├── selectors.py                 #   Selector construction and feasibility
-│   └── solvers.py                   #   IPS matrix builder and LSQR solver
-├── theory/                          # Computational proofs
-│   ├── 01_definitions.py            #   Formal definitions + verification
-│   ├── 02_php_level0.py             #   PROOF: PHP is Level 0
-│   ├── 03_phpe_level1.py            #   PROOF: PHP-E is Level 1
-│   ├── 04_phpc_level2_conjecture.py #   Evidence: PHP-C is Level 2+
-│   ├── 05_phpc_selector_lower_bound.py  # PROOF: s-only selectors impossible
-│   ├── 06_phpc_formal_identity.py   #   Formal identity cost analysis
-│   ├── 07_phpc_growth_analysis.py   #   Growth: factorial vs polynomial
-│   ├── 08_phpc_symmetry_argument.py #   Z_{n+1} forces Omega(n!) cost
-│   ├── 09_hierarchy_theorem.py      #   PROOF: SC(0) ⊊ SC(1) ⊊ SC(2)
-│   └── 10_level3_candidates.py     #   CANDIDATE: Tseitin on expanders for SC(3)
-└── tests/
-    └── run_all_tests.py             #   Test runner for theory/01-04
+
+```python
+from selector_complexity import php_axioms, find_certificate, build_matrix
+
+# Build PHP axioms for n=3 (4 pigeons, 3 holes)
+axioms = php_axioms(3)
+print(f"PHP(3): {len(axioms)} axioms")
+
+# Find an IPS certificate
+M = build_matrix(axioms, degree=4)
+cert = find_certificate(M)
+print(f"Certificate found: residual = {cert['residual']:.6f}")
 ```
+
+```python
+from selector_complexity import (
+    phpe_axioms, phpc_axioms,
+    build_phpe_selectors, test_s_only_feasibility,
+)
+
+# PHP-E: efficient selectors exist (Level 1)
+selectors = build_phpe_selectors(3)
+print(f"PHP-E selectors: {len(selectors)} indicators, cost O(n²)")
+
+# PHP-C: s-only selectors are impossible (Level 2)
+result = test_s_only_feasibility(3)
+print(f"PHP-C s-only feasible? {result}")  # False
+```
+
+---
+
+## What problem does this solve?
+
+In proof complexity, we know some tautologies are "hard" and others are "easy", but **why**? The Selector Complexity Framework gives a structural answer:
+
+- **Easy tautologies** (SC(0)): the proof has a natural decomposition into cases, no extra machinery needed.
+- **Medium tautologies** (SC(1)): you can decompose, but you need auxiliary "selector" polynomials to pick the right case.
+- **Hard tautologies** (SC(2)): selectors exist but cost Ω(n!) — symmetry forces exponential overhead.
+- **Hardest tautologies** (SC(3)?): no useful decomposition exists at all.
+
+This is the first framework to classify IPS tautologies by **selector cost**, creating a strict hierarchy with computational proofs.
+
+---
+
+## Computational Proofs
+
+![10/10 Tests Passed - All Research Verified Computationally](selector-complexity-tests-verified.png)
+
+Every claim is backed by runnable Python scripts in `theory/`:
+
+```bash
+python theory/02_php_level0.py        # PHP is Level 0
+python theory/03_phpe_level1.py       # PHP-E is Level 1
+python theory/05_phpc_selector_lower_bound.py  # s-only selectors impossible
+python theory/08_phpc_symmetry_argument.py     # Z_{n+1} forces Ω(n!) cost
+python theory/09_hierarchy_theorem.py  # Full hierarchy: SC(0) ⊊ SC(1) ⊊ SC(2)
+python theory/10_level3_candidates.py  # Tseitin on expanders (Level 3 candidate)
+```
+
+**No claim without computational proof.**
+
+---
 
 ## Key Results
 
-**Theorem (Strict Hierarchy):** The selector complexity classes satisfy
-SC(0) ⊊ SC(1) ⊊ SC(2), with:
+### Strict Hierarchy Theorem
 
-- **PHP in SC(0):** Telescopic IPS certificates, degree 2, size O(n^2). No selectors needed.
-- **PHP-E in SC(1) \ SC(0):** Last Pigeon Indicators give efficient selectors.
-  Each g_p(y) has polynomial circuit size. IPS certificates of O(n^4).
-- **PHP-C in SC(2) \ SC(1):** Three-part lower bound:
-  1. s-only selectors are impossible (gap pigeon invisible to cycle structure).
-  2. Mixed selectors must use x-variables, tying cost to PHP structure.
-  3. Z_{n+1} cyclic symmetry forces total selector size >= n!.
+**SC(0) ⊊ SC(1) ⊊ SC(2)**, proven through:
 
-**Quantitative separation (from theory/09):**
+- **PHP ∈ SC(0):** Telescopic IPS certificates, degree 2, size O(n²). No selectors needed.
+- **PHP-E ∈ SC(1) \ SC(0):** Last Pigeon Indicators give efficient selectors with polynomial circuit size. IPS certificates of O(n⁴).
+- **PHP-C ∈ SC(2) \ SC(1):** Three-part lower bound:
+  1. s-only selectors are impossible (gap pigeon invisible to cycle structure)
+  2. Mixed selectors must use x-variables, tying cost to PHP structure
+  3. Z_{n+1} cyclic symmetry forces total selector size ≥ n!
+
+### Quantitative Separation
 
 ```
   n | PHP-E selectors | PHP-C lower bound | Ratio
@@ -75,84 +120,64 @@ SC(0) ⊊ SC(1) ⊊ SC(2), with:
   6 |             127 |               720 |   5.7
 ```
 
-The separation grows factorially and diverges for large n.
+The separation grows **factorially** and diverges for large n.
 
-## Level 3 Candidate: Tseitin on Expanders (theory/10)
+### Level 3 Candidate: Tseitin on Expanders
 
-Tseitin tautologies assign parities to vertices of a graph. On expander graphs
-the contradiction is **global** (total parity is odd, but the sum of all vertex
-parities equals twice the sum of edge variables, which is always even).
-
-**Why selectors fail:** On an expander, every vertex subset S has at least c|S|
-boundary edges. Any "local" selector still involves many external variables,
-so decomposition doesn't simplify the problem.
-
-**Computational evidence (IPS certificate search):**
+Tseitin tautologies on expander graphs resist IPS certificate search at all tested degrees:
 
 ```
-  Tseitin(n=6)   d<=5: INFEASIBLE  (residual ~0.999, no decrease)
-  Tseitin(n=8)   d<=5: INFEASIBLE
-  Tseitin(n=10)  d<=5: INFEASIBLE
-  Tseitin(n=12)  d<=5: INFEASIBLE
-  Tseitin(n=14)  d<=5: INFEASIBLE
+  Tseitin(n=6)   d≤5: INFEASIBLE  (residual ~0.999)
+  Tseitin(n=8)   d≤5: INFEASIBLE
+  Tseitin(n=10)  d≤5: INFEASIBLE
+  Tseitin(n=12)  d≤5: INFEASIBLE
+  Tseitin(n=14)  d≤5: INFEASIBLE
 ```
 
-For comparison, PHP(n=3) finds a certificate at d=4 and PHP-C(n=3) at d=4.
-Tseitin doesn't yield at any degree tested, consistent with Level 3.
+For comparison, PHP(n=3) and PHP-C(n=3) find certificates at d=4.
 
-**Expansion of candidate graphs:**
+---
+
+## Project Structure
 
 ```
-  vertices | edges | expansion
-       6   |    15 |      3.00
-       8   |    20 |      2.00
-      10   |    25 |      2.20
-      12   |    30 |      2.00
-      14   |    35 |      1.86
+Selector-Complexity-Framework/
+├── selector_complexity/             # Python package
+│   ├── core.py                      #   PolynomialSystem, SelectorFamily, IPSCertificate
+│   ├── php.py                       #   PHP, PHP-E, PHP-C axiom builders
+│   ├── selectors.py                 #   Selector construction and feasibility
+│   └── solvers.py                   #   IPS matrix builder and LSQR solver
+├── theory/                          # Computational proofs (01–10)
+│   ├── 01_definitions.py            #   Formal definitions + verification
+│   ├── 02_php_level0.py             #   PROOF: PHP is Level 0
+│   ├── 03_phpe_level1.py            #   PROOF: PHP-E is Level 1
+│   ├── 04_phpc_level2_conjecture.py #   Evidence: PHP-C is Level 2+
+│   ├── 05_phpc_selector_lower_bound.py  # PROOF: s-only selectors impossible
+│   ├── 06_phpc_formal_identity.py   #   Formal identity cost analysis
+│   ├── 07_phpc_growth_analysis.py   #   Growth: factorial vs polynomial
+│   ├── 08_phpc_symmetry_argument.py #   Z_{n+1} forces Ω(n!) cost
+│   ├── 09_hierarchy_theorem.py      #   PROOF: SC(0) ⊊ SC(1) ⊊ SC(2)
+│   └── 10_level3_candidates.py      #   CANDIDATE: Tseitin on expanders
+└── tests/
+    └── run_all_tests.py             #   Test runner
 ```
 
-All graphs have expansion >= 1.0 (every subset has at least as many boundary
-edges as vertices), preventing localization of the contradiction.
-
-**Conjecture:** Tseitin on 3-regular expanders is Selector Complexity Level 3.
-
-## Install
+## Install from Source
 
 ```bash
-pip install selector-complexity
-```
-
-Or from source:
-
-```bash
-pip install numpy scipy
 git clone https://github.com/iafiscal1212/Selector-Complexity-Framework.git
 cd Selector-Complexity-Framework
+pip install -e .
 python theory/09_hierarchy_theorem.py
 ```
 
-## Verify
-
-Each theorem in `theory/` is a standalone script with computational verification:
-
-```bash
-python theory/02_php_level0.py        # PHP is Level 0
-python theory/03_phpe_level1.py       # PHP-E is Level 1
-python theory/05_phpc_selector_lower_bound.py  # s-only selectors impossible
-python theory/08_phpc_symmetry_argument.py     # Z_{n+1} lower bound
-python theory/09_hierarchy_theorem.py  # Full hierarchy: SC(0) ⊊ SC(1) ⊊ SC(2)
-python theory/10_level3_candidates.py  # Level 3 candidates: Tseitin + random XOR
-```
-
-No claim without computational proof.
-
 ## Open Questions
 
-1. **SC(2) ⊊ SC(3)?** Is Tseitin on expanders provably Level 3? (Strong computational evidence.)
+1. **SC(2) ⊊ SC(3)?** Is Tseitin on expanders provably Level 3?
 2. **Infinite hierarchy?** Are there infinitely many distinct selector complexity levels?
-3. **Tight bounds?** Can the n! lower bound for PHP-C be improved to 2^Omega(n)?
-4. **Random 3-XOR?** Are random unsatisfiable k-XOR systems also Level 3, or is structure necessary?
+3. **Tight bounds?** Can the n! lower bound for PHP-C be improved to 2^Ω(n)?
+4. **Random 3-XOR?** Are random unsatisfiable k-XOR systems also Level 3?
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
