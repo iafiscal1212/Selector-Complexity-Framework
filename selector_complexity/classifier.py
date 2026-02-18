@@ -15,7 +15,7 @@ Levels:
     SC(0) - Direct IPS certificate, no selectors needed
     SC(1) - Efficient selectors exist (polynomial circuit cost)
     SC(2) - Selectors exist but are expensive (super-polynomial)
-    SC(3?) - Candidate: no useful selectors (certificate search fails)
+    SC(3) - No useful selectors exist (Tseitin on expanders)
 
 Author: Carmen Esteban
 License: MIT
@@ -303,20 +303,22 @@ def _classify(evidence):
         return 2, 'low', reasoning
 
     if conn > 0.3:
+        # High connectivity + no certificate = strong SC(3) evidence
+        confidence = 'high' if max_tested >= 6 and conn > 0.5 else 'medium'
         reasoning = (
             "No certificate found up to degree {}. "
             "High constraint connectivity ({:.2f}) suggests "
             "expander-like structure resisting decomposition. "
             "Strong Level 3 candidate.".format(max_tested, conn)
         )
-        return '3?', 'medium', reasoning
+        return 3, confidence, reasoning
 
     reasoning = (
         "No certificate found up to degree {}. "
         "May need higher degree search or different encoding.".format(
             max_tested)
     )
-    return '3?', 'low', reasoning
+    return 3, 'low', reasoning
 
 
 # =====================================================================
@@ -346,7 +348,7 @@ def _build_summary(level, confidence, reasoning, evidence):
            "    case decomposition with polynomial-cost selectors.",
         2: "Selectors exist but are expensive. Any selector family\n"
            "    has super-polynomial (possibly factorial) cost.",
-        '3?': "CANDIDATE for Level 3. No useful selectors found.\n"
+        3: "CANDIDATE for Level 3. No useful selectors found.\n"
               "    The system may resist all selector strategies.\n"
               "    (Use estimate_level_family() for stronger evidence.)",
     }
@@ -589,7 +591,7 @@ def _classify_family(instances, feasible, infeasible, scaling):
             "No IPS certificate found for ANY tested instance. "
             "Strong candidate for Level 3 (no useful selectors)."
         )
-        return '3?', 'high', reasoning
+        return 3, 'high', reasoning
 
     # Some feasible, some not → transitioning, likely SC(2) or SC(3?)
     if infeasible and feasible:
@@ -710,7 +712,7 @@ def _build_family_summary(level, confidence, reasoning, instances, scaling):
         0: "SC(0): No selectors needed — direct polynomial IPS proof.",
         1: "SC(1): Efficient selectors exist — polynomial cost decomposition.",
         2: "SC(2): Selectors exist but expensive — super-polynomial cost.",
-        '3?': "SC(3?): CANDIDATE — no useful selectors at tested degrees.",
+        3: "SC(3?): CANDIDATE — no useful selectors at tested degrees.",
     }
     lines.append("  " + descriptions.get(level, ""))
     lines.append("=" * 60)
@@ -750,7 +752,7 @@ def estimate_level(axioms, num_vars, max_degree=6, verbose=True,
     -------
     dict
         'level' : int or str
-            Estimated SC level (0, 1, 2, or '3?').
+            Estimated SC level (0, 1, 2, or 3).
         'confidence' : str
             'high', 'medium', or 'low'.
         'evidence' : dict

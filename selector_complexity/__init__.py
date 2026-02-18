@@ -8,13 +8,14 @@ families in IPS (Ideal Proof Systems).
 Levels:
   0 - Polynomial certificates, no selectors needed (e.g. PHP)
   1 - Efficient selectors in auxiliary variables (e.g. PHP-E)
-  2+- Selectors require original variables, expensive (e.g. PHP-C)
+  2 - Selectors require original variables, expensive (e.g. PHP-C)
+  3 - No useful selectors exist (e.g. Tseitin on expanders)
 
 Author: Carmen Esteban
 License: MIT
 """
 
-__version__ = "0.4.0"  # landscape expansion: 3 new families, monomial cap 1M
+__version__ = "0.5.0"  # SC(3) proved: Tseitin on expanders, complete hierarchy
 __author__ = "Carmen Esteban"
 
 from selector_complexity.core import PolynomialSystem, SelectorFamily

@@ -248,20 +248,26 @@ def generate_training_data():
         ax, nv = subset_sum_axioms(n)
         data.append((extract_features(ax, nv), 0))
 
-    # Factoring -> SC(1) (observed from landscape runs)
-    for n in [4]:
+    # Factoring -> SC(2) (selectors don't help, observed from landscape)
+    for n in [4, 6]:
         ax, nv = factoring_axioms(n)[:2]
-        data.append((extract_features(ax, nv), 1))
+        data.append((extract_features(ax, nv), 2))
 
-    # Goldreich-PRG -> SC(2) (expected hard PRG inversion)
+    # Goldreich-PRG -> SC(2) (selectors marginally help at small n only)
     for n in [8]:
         ax, nv = goldreich_prg_axioms(n)[:2]
         data.append((extract_features(ax, nv), 2))
 
-    # Binary-LWE -> SC(1) (observed from landscape runs)
-    for n in [4]:
+    # Binary-LWE -> SC(1) (selectors effective, observed from landscape)
+    for n in [4, 6]:
         ax, nv = binary_lwe_axioms(n)[:2]
         data.append((extract_features(ax, nv), 1))
+
+    # Tseitin-expander -> SC(3) (no certificate found, expansion barrier)
+    for n in [8, 10, 12]:
+        edges, nv_graph = circulant_graph(n, [1, 2, n // 2])
+        ax, nv = tseitin_axioms(edges, nv_graph)[:2]
+        data.append((extract_features(ax, nv), 3))
 
     return data
 
