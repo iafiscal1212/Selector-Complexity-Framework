@@ -116,12 +116,12 @@ def _search_certificates(axioms, num_vars, max_degree, verbose,
         from selector_complexity.solvers import incremental_certificate_search
         return incremental_certificate_search(
             axioms, num_vars, max_degree=max_degree,
-            min_degree=2, verbose=verbose)
+            min_degree=1, verbose=verbose)
 
     # Original non-incremental path
     results = []
 
-    for d in range(2, max_degree + 1):
+    for d in range(1, max_degree + 1):
         num_monoms_est = sum(comb(num_vars, k) for k in range(d + 1))
         if num_monoms_est > 1000000:
             if verbose:
