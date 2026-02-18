@@ -1,6 +1,6 @@
 """
-Five discovery strategies for selector families.
-=================================================
+Six discovery strategies for selector families.
+================================================
 
 Each strategy implements .search() returning a list of SelectorCandidate.
 
@@ -10,6 +10,7 @@ Strategies:
     3. IPSGuidedStrategy          - Treat selector coefficients as unknowns
     4. SubspaceProjectionStrategy - Project onto informative variable subsets
     5. VariableGroupStrategy      - Rank variables by info score, build products
+    6. AxiomGraphStrategy         - Axiom dependency graph decomposition
 
 Author: Carmen Esteban
 """
@@ -610,6 +611,439 @@ class VariableGroupStrategy(BaseStrategy):
 
 
 # ---------------------------------------------------------------------------
+# Strategy 6: Axiom graph decomposition
+# ---------------------------------------------------------------------------
+
+class AxiomGraphStrategy(BaseStrategy):
+    """Discover selectors from the axiom dependency graph.
+
+    Novel approach: build a graph where axioms are nodes and edges
+    represent shared variables. Spectral clustering reveals communities
+    of tightly-coupled axioms, and the variables that bridge these
+    communities ("hinge variables") are natural selector candidates.
+
+    This captures the *proof topology* — selector variables emerge from
+    structural fault lines in the polynomial system rather than from
+    properties of individual variables.
+
+    Sub-strategies:
+        - Hinge: variables connecting different axiom communities
+        - Bridge: variables with high betweenness in variable co-occurrence
+        - Bottleneck: minimal variable sets whose removal disconnects the graph
+    """
+
+    def search(self):
+        candidates = []
+
+        axiom_vars = self._axiom_variable_sets()
+        n_axioms = len(axiom_vars)
+        if n_axioms < 3:
+            return candidates
+
+        adj = self._build_axiom_adjacency(axiom_vars)
+
+        # --- Sub-strategy A: Hinge variables from spectral communities ---
+        hinge_cands = []
+        for n_parts in range(2, min(5, n_axioms)):
+            communities = self._spectral_partition(adj, n_parts)
+            if communities is None:
+                continue
+
+            hinge_sets = self._find_hinge_variables(axiom_vars, communities)
+            for var_set in hinge_sets:
+                if 2 ** len(var_set) > self.config.max_selector_count:
+                    continue
+                selectors = self._build_product_selectors(var_set)
+                label = '_'.join(str(v) for v in var_set)
+                hinge_cands.append(SelectorCandidate(
+                    selectors=selectors,
+                    source=f"axiom_graph:hinge:k{n_parts}:vars{label}"
+                ))
+                if len(hinge_cands) >= 10:
+                    break
+            if len(hinge_cands) >= 10:
+                break
+        candidates.extend(hinge_cands)
+
+        # --- Sub-strategy B: Bridge variables (co-occurrence betweenness) ---
+        bridge_cands = []
+        bridge_sets = self._find_bridge_variables(axiom_vars)
+        for var_set in bridge_sets:
+            if 2 ** len(var_set) > self.config.max_selector_count:
+                continue
+            selectors = self._build_product_selectors(var_set)
+            label = '_'.join(str(v) for v in var_set)
+            bridge_cands.append(SelectorCandidate(
+                selectors=selectors,
+                source=f"axiom_graph:bridge:vars{label}"
+            ))
+            if len(bridge_cands) >= 10:
+                break
+        candidates.extend(bridge_cands)
+
+        # --- Sub-strategy C: Bottleneck variables (axiom graph cuts) ---
+        bottleneck_cands = []
+        bottleneck_sets = self._find_bottleneck_variables(axiom_vars)
+        for var_set in bottleneck_sets:
+            if 2 ** len(var_set) > self.config.max_selector_count:
+                continue
+            selectors = self._build_product_selectors(var_set)
+            label = '_'.join(str(v) for v in var_set)
+            bottleneck_cands.append(SelectorCandidate(
+                selectors=selectors,
+                source=f"axiom_graph:bottleneck:vars{label}"
+            ))
+            if len(bottleneck_cands) >= 10:
+                break
+        candidates.extend(bottleneck_cands)
+
+        return candidates
+
+    # --- Graph construction ---
+
+    def _axiom_variable_sets(self):
+        """For each axiom, collect the set of variables that appear in it."""
+        result = []
+        for ax in self.axioms:
+            vs = set()
+            for _, monom in ax:
+                vs.update(monom)
+            result.append(vs)
+        return result
+
+    def _build_axiom_adjacency(self, axiom_vars):
+        """Build weighted adjacency matrix: edge weight = |shared variables|."""
+        n = len(axiom_vars)
+        adj = np.zeros((n, n))
+        for i in range(n):
+            for j in range(i + 1, n):
+                shared = len(axiom_vars[i] & axiom_vars[j])
+                if shared > 0:
+                    adj[i, j] = shared
+                    adj[j, i] = shared
+        return adj
+
+    # --- Spectral community detection ---
+
+    def _spectral_partition(self, adj, k):
+        """Partition axioms into k communities using spectral clustering.
+
+        Uses the normalized graph Laplacian: L_sym = I - D^{-1/2} A D^{-1/2}.
+        The bottom k eigenvectors embed axioms in R^k; k-means clusters them.
+        """
+        n = adj.shape[0]
+        if n < k + 1:
+            return None
+
+        degrees = adj.sum(axis=1)
+        isolated = degrees < 1e-10
+        if isolated.sum() > n // 2:
+            return None
+
+        # Normalized Laplacian
+        D_inv_sqrt = np.zeros(n)
+        D_inv_sqrt[~isolated] = 1.0 / np.sqrt(degrees[~isolated])
+        D_half = np.diag(D_inv_sqrt)
+        L_sym = np.eye(n) - D_half @ adj @ D_half
+
+        # Eigendecomposition (only need smallest k+1 eigenvalues)
+        try:
+            eigenvalues, eigenvectors = np.linalg.eigh(L_sym)
+        except np.linalg.LinAlgError:
+            return None
+
+        # Use eigenvectors 1..k (skip the constant eigenvector 0)
+        if len(eigenvalues) < k + 1:
+            return None
+
+        # Check spectral gap — need meaningful separation
+        if eigenvalues[k] < 1e-6:
+            return None
+
+        embedding = eigenvectors[:, 1:k + 1]
+
+        # Normalize rows to unit length (spectral clustering convention)
+        norms = np.linalg.norm(embedding, axis=1, keepdims=True)
+        norms[norms < 1e-10] = 1.0
+        embedding = embedding / norms
+
+        # K-means on the embedding
+        labels = self._kmeans(embedding, k)
+        if labels is None:
+            return None
+
+        # Verify each community has at least 1 axiom
+        communities = {}
+        for i, label in enumerate(labels):
+            communities.setdefault(label, []).append(i)
+
+        if len(communities) < k:
+            return None
+
+        return communities
+
+    def _kmeans(self, X, k, max_iter=50):
+        """Simple k-means for spectral embedding."""
+        n = X.shape[0]
+        rng = np.random.RandomState(42)
+
+        # K-means++ initialization
+        centers = [X[rng.randint(n)]]
+        for _ in range(1, k):
+            dists = np.array([min(np.linalg.norm(x - c) ** 2 for c in centers)
+                              for x in X])
+            total = dists.sum()
+            if total < 1e-12:
+                centers.append(X[rng.randint(n)])
+            else:
+                probs = dists / total
+                centers.append(X[rng.choice(n, p=probs)])
+        centers = np.array(centers)
+
+        labels = np.zeros(n, dtype=int)
+        for _ in range(max_iter):
+            # Assign
+            dists = np.array([[np.linalg.norm(X[i] - centers[c])
+                               for c in range(k)] for i in range(n)])
+            new_labels = np.argmin(dists, axis=1)
+            if np.array_equal(new_labels, labels) and _ > 0:
+                break
+            labels = new_labels
+
+            # Update centers
+            for c in range(k):
+                mask = labels == c
+                if np.sum(mask) > 0:
+                    centers[c] = X[mask].mean(axis=0)
+
+        return labels
+
+    # --- Hinge variable detection ---
+
+    def _find_hinge_variables(self, axiom_vars, communities):
+        """Find variables that connect different axiom communities.
+
+        A hinge variable appears in axioms from >= 2 different communities.
+        Ranked by the number of distinct community pairs they bridge.
+        """
+        # Map each axiom index to its community
+        axiom_to_comm = {}
+        for comm_id, axiom_indices in communities.items():
+            for idx in axiom_indices:
+                axiom_to_comm[idx] = comm_id
+
+        # For each variable, count which communities it touches
+        var_communities = {}
+        for ax_idx, vs in enumerate(axiom_vars):
+            comm = axiom_to_comm.get(ax_idx)
+            if comm is None:
+                continue
+            for v in vs:
+                var_communities.setdefault(v, set()).add(comm)
+
+        # Hinge variables: appear in >= 2 communities
+        hinges = []
+        for v, comms in var_communities.items():
+            if len(comms) >= 2:
+                # Score: number of community pairs bridged
+                n_pairs = len(comms) * (len(comms) - 1) // 2
+                hinges.append((v, n_pairs, len(comms)))
+
+        if not hinges:
+            return []
+
+        # Sort by bridging score (descending), then by community count
+        hinges.sort(key=lambda x: (-x[1], -x[2]))
+
+        # Build variable sets from top hinge variables
+        var_sets = []
+        top_hinges = [v for v, _, _ in hinges[:8]]
+
+        for size in range(1, min(5, len(top_hinges) + 1)):
+            for combo in combinations(top_hinges, size):
+                var_sets.append(list(combo))
+                if len(var_sets) >= 20:
+                    return var_sets
+
+        return var_sets
+
+    # --- Bridge variable detection ---
+
+    def _find_bridge_variables(self, axiom_vars):
+        """Find variables with high betweenness in the variable co-occurrence graph.
+
+        Two variables co-occur if they appear in the same axiom.
+        A bridge variable connects otherwise-separated variable clusters.
+
+        Uses an approximation: for each variable v, count the number of
+        connected component pairs that would be created if v were removed
+        from the co-occurrence graph.
+        """
+        # Build variable co-occurrence adjacency
+        all_vars = set()
+        for vs in axiom_vars:
+            all_vars.update(vs)
+
+        if len(all_vars) > 200:
+            return []
+
+        var_list = sorted(all_vars)
+        var_idx = {v: i for i, v in enumerate(var_list)}
+        n = len(var_list)
+
+        cooccur = np.zeros((n, n), dtype=bool)
+        for vs in axiom_vars:
+            vs_list = sorted(vs)
+            for a in range(len(vs_list)):
+                for b in range(a + 1, len(vs_list)):
+                    i, j = var_idx[vs_list[a]], var_idx[vs_list[b]]
+                    cooccur[i, j] = True
+                    cooccur[j, i] = True
+
+        # Count connected components of the full graph
+        base_components = self._count_components(cooccur)
+
+        # For each variable, count components after removal
+        bridge_scores = []
+        for vi in range(n):
+            # Create reduced adjacency
+            reduced = cooccur.copy()
+            reduced[vi, :] = False
+            reduced[:, vi] = False
+            new_components = self._count_components(reduced, skip={vi})
+            delta = new_components - base_components
+            if delta > 0:
+                bridge_scores.append((var_list[vi], delta))
+
+        if not bridge_scores:
+            # Fall back: use vertex degree in co-occurrence graph as proxy
+            degrees = cooccur.sum(axis=1)
+            top_deg = np.argsort(-degrees)[:6]
+            bridge_scores = [(var_list[i], int(degrees[i]))
+                             for i in top_deg if degrees[i] > 0]
+
+        bridge_scores.sort(key=lambda x: -x[1])
+        top_bridges = [v for v, _ in bridge_scores[:6]]
+
+        var_sets = []
+        for size in range(1, min(4, len(top_bridges) + 1)):
+            for combo in combinations(top_bridges, size):
+                var_sets.append(list(combo))
+                if len(var_sets) >= 15:
+                    return var_sets
+
+        return var_sets
+
+    def _count_components(self, adj_bool, skip=None):
+        """Count connected components via BFS on boolean adjacency matrix."""
+        n = adj_bool.shape[0]
+        visited = set(skip) if skip else set()
+        components = 0
+        for start in range(n):
+            if start in visited:
+                continue
+            components += 1
+            queue = [start]
+            visited.add(start)
+            while queue:
+                node = queue.pop()
+                for neighbor in range(n):
+                    if neighbor not in visited and adj_bool[node, neighbor]:
+                        visited.add(neighbor)
+                        queue.append(neighbor)
+        return components
+
+    # --- Bottleneck variable detection ---
+
+    def _find_bottleneck_variables(self, axiom_vars):
+        """Find minimal variable sets whose removal maximally disconnects axioms.
+
+        For each variable v, measure how much removing all axioms containing v
+        fragments the remaining axiom graph. Variables whose removal creates
+        the most fragments are "bottleneck" variables — they carry the proof's
+        structural weight.
+        """
+        n_axioms = len(axiom_vars)
+        if n_axioms > 200:
+            return []
+
+        all_vars = set()
+        for vs in axiom_vars:
+            all_vars.update(vs)
+
+        # For each variable, find axioms that contain it
+        var_to_axioms = {}
+        for v in all_vars:
+            var_to_axioms[v] = set()
+        for ax_idx, vs in enumerate(axiom_vars):
+            for v in vs:
+                var_to_axioms[v].add(ax_idx)
+
+        # Build axiom adjacency for connectivity check
+        axiom_adj = {}
+        for i in range(n_axioms):
+            axiom_adj[i] = set()
+        for i in range(n_axioms):
+            for j in range(i + 1, n_axioms):
+                if axiom_vars[i] & axiom_vars[j]:
+                    axiom_adj[i].add(j)
+                    axiom_adj[j].add(i)
+
+        # Base connectivity
+        base_cc = self._count_axiom_components(axiom_adj, n_axioms, set())
+
+        # Score each variable by fragmentation
+        scores = []
+        for v in sorted(all_vars):
+            remove_axioms = var_to_axioms[v]
+            new_cc = self._count_axiom_components(
+                axiom_adj, n_axioms, remove_axioms)
+            remaining = n_axioms - len(remove_axioms)
+            if remaining < 2:
+                continue
+            # Fragmentation score: components created minus base
+            delta = new_cc - base_cc
+            # Also consider what fraction of axioms are affected
+            impact = len(remove_axioms) / n_axioms
+            # Combined score: fragmentation * (1 + impact)
+            combined = delta * (1.0 + impact) if delta > 0 else impact
+            scores.append((v, combined))
+
+        scores.sort(key=lambda x: -x[1])
+        top_bottlenecks = [v for v, _ in scores[:6] if _ > 0]
+
+        if not top_bottlenecks:
+            return []
+
+        var_sets = []
+        for size in range(1, min(4, len(top_bottlenecks) + 1)):
+            for combo in combinations(top_bottlenecks, size):
+                var_sets.append(list(combo))
+                if len(var_sets) >= 10:
+                    return var_sets
+
+        return var_sets
+
+    def _count_axiom_components(self, axiom_adj, n_axioms, removed):
+        """Count connected components in axiom graph after removing some axioms."""
+        visited = set(removed)
+        components = 0
+        for start in range(n_axioms):
+            if start in visited:
+                continue
+            components += 1
+            queue = [start]
+            visited.add(start)
+            while queue:
+                node = queue.pop()
+                for neighbor in axiom_adj.get(node, set()):
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        queue.append(neighbor)
+        return components
+
+
+# ---------------------------------------------------------------------------
 # Factory
 # ---------------------------------------------------------------------------
 
@@ -622,5 +1056,7 @@ def get_strategies(config, axioms, num_vars, var_maps=None):
         "subspace_projection": SubspaceProjectionStrategy(
             config, axioms, num_vars, var_maps),
         "variable_group": VariableGroupStrategy(
+            config, axioms, num_vars, var_maps),
+        "axiom_graph": AxiomGraphStrategy(
             config, axioms, num_vars, var_maps),
     }

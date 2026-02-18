@@ -21,7 +21,7 @@ DEFAULT_CONFIG = DiscoveryConfig(
     max_selector_degree=4,
     strategies=[
         "exhaustive", "template", "ips_guided",
-        "subspace_projection", "variable_group",
+        "subspace_projection", "variable_group", "axiom_graph",
     ],
     max_vars_exhaustive=12,
     top_k_variables=10,

@@ -1,16 +1,24 @@
 {
-  "system": "PHP-C(3)",
-  "n": 24,
+  "system": "Factoring(8)",
+  "n": 80,
   "level_estimate": 2,
-  "candidates_tested": 136,
-  "candidates_verified": 135,
+  "candidates_tested": 182,
+  "candidates_verified": 181,
   "best_selector": {
     "num_selectors": 2,
     "total_size": 3,
     "degree": 1,
-    "source": "template:product:vars12",
+    "source": "template:linear:var79",
     "polynomials": {
       "0": [
+        {
+          "c": 1.0,
+          "m": [
+            79
+          ]
+        }
+      ],
+      "1": [
         {
           "c": 1.0,
           "m": []
@@ -18,33 +26,28 @@
         {
           "c": -1.0,
           "m": [
-            12
-          ]
-        }
-      ],
-      "1": [
-        {
-          "c": 1.0,
-          "m": [
-            12
+            79
           ]
         }
       ]
     }
   },
   "cert_without_selectors": {
-    "degree": 6,
-    "size": 432282
+    "degree": 1,
+    "size": 65
   },
-  "cert_with_selectors": null,
+  "cert_with_selectors": {
+    "degree": 1,
+    "size": 65
+  },
   "all_candidates": [],
   "timings": {
-    "baseline": 3.195,
+    "baseline": 0.011,
     "exhaustive": 0.0,
-    "template": 0.002,
-    "ips_guided": 0.0,
+    "template": 0.003,
+    "ips_guided": 0.001,
     "subspace_projection": 0.0,
     "variable_group": 0.0,
-    "axiom_graph": 0.009
+    "axiom_graph": 0.016
   }
 }

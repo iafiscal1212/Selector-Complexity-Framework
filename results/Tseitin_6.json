@@ -2,13 +2,79 @@
   "system": "Tseitin(6)",
   "n": 6,
   "level_estimate": 0,
-  "candidates_tested": 79,
-  "candidates_verified": 78,
+  "candidates_tested": 109,
+  "candidates_verified": 108,
   "best_selector": {
     "num_selectors": 4,
     "total_size": 9,
     "degree": 2,
-    "source": "template:product:vars1_2"
+    "source": "template:product:vars1_2",
+    "polynomials": {
+      "0": [
+        {
+          "c": 1.0,
+          "m": []
+        },
+        {
+          "c": -1.0,
+          "m": [
+            2
+          ]
+        },
+        {
+          "c": -1.0,
+          "m": [
+            1
+          ]
+        },
+        {
+          "c": 1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ],
+      "1": [
+        {
+          "c": 1.0,
+          "m": [
+            1
+          ]
+        },
+        {
+          "c": -1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ],
+      "2": [
+        {
+          "c": 1.0,
+          "m": [
+            2
+          ]
+        },
+        {
+          "c": -1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ],
+      "3": [
+        {
+          "c": 1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ]
+    }
   },
   "cert_without_selectors": {
     "degree": 1,
@@ -25,6 +91,7 @@
     "template": 0.001,
     "ips_guided": 0.0,
     "subspace_projection": 0.001,
-    "variable_group": 0.001
+    "variable_group": 0.001,
+    "axiom_graph": 0.002
   }
 }

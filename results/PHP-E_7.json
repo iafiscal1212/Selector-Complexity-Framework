@@ -2,23 +2,46 @@
   "system": "PHP-E(7)",
   "n": 84,
   "level_estimate": 2,
-  "candidates_tested": 157,
-  "candidates_verified": 155,
+  "candidates_tested": 177,
+  "candidates_verified": 175,
   "best_selector": {
     "num_selectors": 2,
     "total_size": 3,
     "degree": 1,
-    "source": "template:product:vars56"
+    "source": "template:product:vars56",
+    "polynomials": {
+      "0": [
+        {
+          "c": 1.0,
+          "m": []
+        },
+        {
+          "c": -1.0,
+          "m": [
+            56
+          ]
+        }
+      ],
+      "1": [
+        {
+          "c": 1.0,
+          "m": [
+            56
+          ]
+        }
+      ]
+    }
   },
   "cert_without_selectors": null,
   "cert_with_selectors": null,
   "all_candidates": [],
   "timings": {
-    "baseline": 0.109,
+    "baseline": 0.094,
     "exhaustive": 0.0,
-    "template": 0.058,
+    "template": 0.039,
     "ips_guided": 0.001,
     "subspace_projection": 0.0,
-    "variable_group": 0.001
+    "variable_group": 0.001,
+    "axiom_graph": 0.524
   }
 }

@@ -2,23 +2,46 @@
   "system": "PHP(4)",
   "n": 20,
   "level_estimate": 3,
-  "candidates_tested": 102,
-  "candidates_verified": 101,
+  "candidates_tested": 132,
+  "candidates_verified": 131,
   "best_selector": {
     "num_selectors": 2,
     "total_size": 3,
     "degree": 1,
-    "source": "template:product:vars0"
+    "source": "template:product:vars0",
+    "polynomials": {
+      "0": [
+        {
+          "c": 1.0,
+          "m": []
+        },
+        {
+          "c": -1.0,
+          "m": [
+            0
+          ]
+        }
+      ],
+      "1": [
+        {
+          "c": 1.0,
+          "m": [
+            0
+          ]
+        }
+      ]
+    }
   },
   "cert_without_selectors": null,
   "cert_with_selectors": null,
   "all_candidates": [],
   "timings": {
-    "baseline": 0.878,
+    "baseline": 1.343,
     "exhaustive": 0.0,
-    "template": 0.001,
+    "template": 0.002,
     "ips_guided": 0.0,
-    "subspace_projection": 0.2,
-    "variable_group": 0.118
+    "subspace_projection": 6.816,
+    "variable_group": 0.93,
+    "axiom_graph": 0.013
   }
 }

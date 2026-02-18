@@ -1,14 +1,14 @@
 {
-  "system": "PHP(2)",
-  "n": 6,
-  "level_estimate": 0,
-  "candidates_tested": 109,
-  "candidates_verified": 108,
+  "system": "Goldreich(8)",
+  "n": 40,
+  "level_estimate": 2,
+  "candidates_tested": 142,
+  "candidates_verified": 141,
   "best_selector": {
     "num_selectors": 4,
     "total_size": 9,
     "degree": 2,
-    "source": "template:product:vars0_1",
+    "source": "variable_group:top2:0_8",
     "polynomials": {
       "0": [
         {
@@ -18,7 +18,7 @@
         {
           "c": -1.0,
           "m": [
-            1
+            8
           ]
         },
         {
@@ -31,7 +31,7 @@
           "c": 1.0,
           "m": [
             0,
-            1
+            8
           ]
         }
       ],
@@ -46,7 +46,7 @@
           "c": -1.0,
           "m": [
             0,
-            1
+            8
           ]
         }
       ],
@@ -54,14 +54,14 @@
         {
           "c": 1.0,
           "m": [
-            1
+            8
           ]
         },
         {
           "c": -1.0,
           "m": [
             0,
-            1
+            8
           ]
         }
       ],
@@ -70,28 +70,28 @@
           "c": 1.0,
           "m": [
             0,
-            1
+            8
           ]
         }
       ]
     }
   },
   "cert_without_selectors": {
-    "degree": 4,
-    "size": 231
+    "degree": 1,
+    "size": 36
   },
   "cert_with_selectors": {
     "degree": 1,
-    "size": 5
+    "size": 31
   },
   "all_candidates": [],
   "timings": {
-    "baseline": 0.007,
-    "exhaustive": 0.244,
+    "baseline": 0.001,
+    "exhaustive": 0.0,
     "template": 0.001,
     "ips_guided": 0.0,
-    "subspace_projection": 0.001,
-    "variable_group": 0.001,
-    "axiom_graph": 0.001
+    "subspace_projection": 0.0,
+    "variable_group": 0.0,
+    "axiom_graph": 0.005
   }
 }

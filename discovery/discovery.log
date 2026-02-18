@@ -1,0 +1,213 @@
+=== Selector Discovery Runner ===
+Jobs: 18 pending, 0 completed
+Results dir: /home/caresment/Selector-Complexity-Framework/results
+
+--- Job: PHP(2) ---
+=== Discovery: PHP(2) (6 vars, 12 axioms) ===
+  Baseline cert: degree=4, size=231
+  exhaustive: 1 candidates
+  template: 47 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 78/79
+  Level estimate: SC(0)
+  Timings: {'baseline': 0.004, 'exhaustive': 0.238, 'template': 0.003, 'ips_guided': 0.0, 'subspace_projection': 0.001, 'variable_group': 0.001}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP_2.json
+--- Job: PHP(3) ---
+=== Discovery: PHP(3) (12 vars, 34 axioms) ===
+  Baseline cert: degree=6, size=20506
+  exhaustive: 0 candidates
+  template: 63 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 93/94
+  Level estimate: SC(0)
+  Timings: {'baseline': 0.049, 'exhaustive': 60.667, 'template': 0.001, 'ips_guided': 0.011, 'subspace_projection': 0.036, 'variable_group': 0.019}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP_3.json
+--- Job: PHP(4) ---
+=== Discovery: PHP(4) (20 vars, 75 axioms) ===
+  exhaustive: 0 candidates
+  template: 71 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 101/102
+  Level estimate: SC(3)
+  Timings: {'baseline': 0.878, 'exhaustive': 0.0, 'template': 0.001, 'ips_guided': 0.0, 'subspace_projection': 0.2, 'variable_group': 0.118}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP_4.json
+--- Job: PHP(5) ---
+=== Discovery: PHP(5) (30 vars, 141 axioms) ===
+  exhaustive: 0 candidates
+  template: 81 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 111/112
+  Level estimate: SC(3)
+  Timings: {'baseline': 10.014, 'exhaustive': 0.0, 'template': 0.003, 'ips_guided': 0.0, 'subspace_projection': 0.0, 'variable_group': 0.0}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP_5.json
+--- Job: PHP(6) ---
+=== Discovery: PHP(6) (42 vars, 238 axioms) ===
+  exhaustive: 0 candidates
+  template: 93 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 0 candidates
+  variable_group: 20 candidates
+  Verified: 113/114
+  Level estimate: SC(3)
+  Timings: {'baseline': 7.06, 'exhaustive': 0.0, 'template': 0.004, 'ips_guided': 0.0, 'subspace_projection': 0.0, 'variable_group': 0.0}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP_6.json
+--- Job: PHP-E(2) ---
+=== Discovery: PHP-E(2) (9 vars, 20 axioms) ===
+  Baseline cert: degree=4, size=436
+  exhaustive: 0 candidates
+  template: 61 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 90/92
+  Level estimate: SC(1)
+  Timings: {'baseline': 0.007, 'exhaustive': 1.157, 'template': 0.001, 'ips_guided': 0.001, 'subspace_projection': 0.009, 'variable_group': 0.009}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-E_2.json
+--- Job: PHP-E(3) ---
+=== Discovery: PHP-E(3) (18 vars, 78 axioms) ===
+  Baseline cert: degree=6, size=121130
+  exhaustive: 0 candidates
+  template: 70 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 99/101
+  Level estimate: SC(1)
+  Timings: {'baseline': 1.21, 'exhaustive': 0.0, 'template': 0.003, 'ips_guided': 0.0, 'subspace_projection': 0.118, 'variable_group': 0.068}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-E_3.json
+--- Job: PHP-E(4) ---
+=== Discovery: PHP-E(4) (30 vars, 215 axioms) ===
+  exhaustive: 0 candidates
+  template: 82 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 111/113
+  Level estimate: SC(2)
+  Timings: {'baseline': 41.128, 'exhaustive': 0.0, 'template': 0.003, 'ips_guided': 0.0, 'subspace_projection': 0.0, 'variable_group': 0.001}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-E_4.json
+--- Job: PHP-E(5) ---
+=== Discovery: PHP-E(5) (45 vars, 481 axioms) ===
+  exhaustive: 0 candidates
+  template: 97 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 0 candidates
+  variable_group: 20 candidates
+  Verified: 116/118
+  Level estimate: SC(2)
+  Timings: {'baseline': 7.052, 'exhaustive': 0.0, 'template': 0.012, 'ips_guided': 0.0, 'subspace_projection': 0.0, 'variable_group': 0.001}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-E_5.json
+--- Job: PHP-E(6) ---
+=== Discovery: PHP-E(6) (63 vars, 938 axioms) ===
+  exhaustive: 0 candidates
+  template: 115 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 0 candidates
+  variable_group: 20 candidates
+  Verified: 134/136
+  Level estimate: SC(2)
+  Timings: {'baseline': 1.538, 'exhaustive': 0.0, 'template': 0.017, 'ips_guided': 0.001, 'subspace_projection': 0.0, 'variable_group': 0.001}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-E_6.json
+--- Job: PHP-E(7) ---
+=== Discovery: PHP-E(7) (84 vars, 1660 axioms) ===
+  exhaustive: 0 candidates
+  template: 136 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 0 candidates
+  variable_group: 20 candidates
+  Verified: 155/157
+  Level estimate: SC(2)
+  Timings: {'baseline': 0.109, 'exhaustive': 0.0, 'template': 0.058, 'ips_guided': 0.001, 'subspace_projection': 0.0, 'variable_group': 0.001}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-E_7.json
+--- Job: PHP-E(8) ---
+=== Discovery: PHP-E(8) (108 vars, 2733 axioms) ===
+  exhaustive: 0 candidates
+  template: 160 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 0 candidates
+  variable_group: 20 candidates
+  Verified: 179/181
+  Level estimate: SC(2)
+  Timings: {'baseline': 0.178, 'exhaustive': 0.0, 'template': 0.12, 'ips_guided': 0.002, 'subspace_projection': 0.0, 'variable_group': 0.002}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-E_8.json
+--- Job: PHP-C(2) ---
+=== Discovery: PHP-C(2) (12 vars, 36 axioms) ===
+  Baseline cert: degree=4, size=1635
+  exhaustive: 0 candidates
+  template: 63 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 93/94
+  Level estimate: SC(1)
+  Timings: {'baseline': 0.007, 'exhaustive': 302.079, 'template': 0.004, 'ips_guided': 0.028, 'subspace_projection': 0.136, 'variable_group': 0.072}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-C_2.json
+--- Job: PHP-C(3) ---
+=== Discovery: PHP-C(3) (24 vars, 138 axioms) ===
+  Baseline cert: degree=6, size=432282
+  exhaustive: 0 candidates
+  template: 75 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 105/106
+  Level estimate: SC(2)
+  Timings: {'baseline': 10.696, 'exhaustive': 0.0, 'template': 0.002, 'ips_guided': 0.0, 'subspace_projection': 0.0, 'variable_group': 0.0}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-C_3.json
+--- Job: PHP-C(4) ---
+=== Discovery: PHP-C(4) (40 vars, 385 axioms) ===
+  exhaustive: 0 candidates
+  template: 91 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 0 candidates
+  variable_group: 20 candidates
+  Verified: 111/112
+  Level estimate: SC(2)
+  Timings: {'baseline': 10.685, 'exhaustive': 0.0, 'template': 0.022, 'ips_guided': 0.0, 'subspace_projection': 0.0, 'variable_group': 0.0}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-C_4.json
+--- Job: PHP-C(5) ---
+=== Discovery: PHP-C(5) (60 vars, 873 axioms) ===
+  exhaustive: 0 candidates
+  template: 111 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 0 candidates
+  variable_group: 20 candidates
+  Verified: 131/132
+  Level estimate: SC(2)
+  Timings: {'baseline': 2.136, 'exhaustive': 0.0, 'template': 0.054, 'ips_guided': 0.001, 'subspace_projection': 0.0, 'variable_group': 0.001}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/PHP-C_5.json
+--- Job: Tseitin(6) ---
+=== Discovery: Tseitin(6) (6 vars, 6 axioms) ===
+  Baseline cert: degree=1, size=6
+  exhaustive: 1 candidates
+  template: 47 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 78/79
+  Level estimate: SC(0)
+  Timings: {'baseline': 0.001, 'exhaustive': 3.001, 'template': 0.002, 'ips_guided': 0.004, 'subspace_projection': 0.001, 'variable_group': 0.001}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/Tseitin_6.json
+--- Job: Tseitin(8) ---
+=== Discovery: Tseitin(8) (8 vars, 8 axioms) ===
+  Baseline cert: degree=1, size=8
+  exhaustive: 1 candidates
+  template: 59 candidates
+  ips_guided: 1 candidates
+  subspace_projection: 10 candidates
+  variable_group: 20 candidates
+  Verified: 90/91
+  Level estimate: SC(0)
+  Timings: {'baseline': 0.001, 'exhaustive': 12.717, 'template': 0.003, 'ips_guided': 0.001, 'subspace_projection': 0.006, 'variable_group': 0.007}
+  Saved: /home/caresment/Selector-Complexity-Framework/results/Tseitin_8.json
+
+=== Done ===
+Completed: 18/18

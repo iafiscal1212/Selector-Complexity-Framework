@@ -1,14 +1,14 @@
 {
-  "system": "PHP-E(2)",
-  "n": 9,
+  "system": "BinLWE(10)",
+  "n": 156,
   "level_estimate": 1,
-  "candidates_tested": 122,
-  "candidates_verified": 120,
+  "candidates_tested": 258,
+  "candidates_verified": 257,
   "best_selector": {
     "num_selectors": 2,
     "total_size": 3,
     "degree": 1,
-    "source": "template:product:vars6",
+    "source": "template:product:vars30",
     "polynomials": {
       "0": [
         {
@@ -18,7 +18,7 @@
         {
           "c": -1.0,
           "m": [
-            6
+            30
           ]
         }
       ],
@@ -26,28 +26,25 @@
         {
           "c": 1.0,
           "m": [
-            6
+            30
           ]
         }
       ]
     }
   },
-  "cert_without_selectors": {
-    "degree": 4,
-    "size": 436
-  },
+  "cert_without_selectors": null,
   "cert_with_selectors": {
-    "degree": 4,
-    "size": 134
+    "degree": 1,
+    "size": 141
   },
   "all_candidates": [],
   "timings": {
-    "baseline": 0.01,
-    "exhaustive": 67.086,
-    "template": 0.006,
-    "ips_guided": 0.008,
-    "subspace_projection": 0.059,
-    "variable_group": 0.059,
-    "axiom_graph": 0.001
+    "baseline": 4.739,
+    "exhaustive": 0.0,
+    "template": 0.02,
+    "ips_guided": 0.003,
+    "subspace_projection": 0.0,
+    "variable_group": 0.001,
+    "axiom_graph": 0.117
   }
 }

@@ -1,0 +1,490 @@
+[
+  {
+    "system": "PHP-C(2)",
+    "family": "PHP-C",
+    "param": 2,
+    "sc_level": 1,
+    "source": "template:product:vars6_7",
+    "selector_vars": [
+      6,
+      7
+    ],
+    "var_roles": {
+      "6": {
+        "type": "var_s",
+        "label": "(1, 2)"
+      },
+      "7": {
+        "type": "var_s",
+        "label": "(1, 3)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 2,
+    "num_selectors": 4,
+    "patterns": [
+      {
+        "type": "counting_partition",
+        "description": "Selectors use PHP counting variables",
+        "algorithmic_meaning": "Counting argument structure \u2014 branch by counting variable values"
+      }
+    ]
+  },
+  {
+    "system": "PHP-C(3)",
+    "family": "PHP-C",
+    "param": 3,
+    "sc_level": 2,
+    "source": "template:product:vars12",
+    "selector_vars": [
+      12
+    ],
+    "var_roles": {
+      "12": {
+        "type": "var_s",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "counting_partition",
+        "description": "Selectors use PHP counting variables",
+        "algorithmic_meaning": "Counting argument structure \u2014 branch by counting variable values"
+      }
+    ]
+  },
+  {
+    "system": "PHP-C(4)",
+    "family": "PHP-C",
+    "param": 4,
+    "sc_level": 2,
+    "source": "template:product:vars20",
+    "selector_vars": [
+      20
+    ],
+    "var_roles": {
+      "20": {
+        "type": "var_s",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "counting_partition",
+        "description": "Selectors use PHP counting variables",
+        "algorithmic_meaning": "Counting argument structure \u2014 branch by counting variable values"
+      }
+    ]
+  },
+  {
+    "system": "PHP-C(5)",
+    "family": "PHP-C",
+    "param": 5,
+    "sc_level": 2,
+    "source": "template:product:vars30",
+    "selector_vars": [
+      30
+    ],
+    "var_roles": {
+      "30": {
+        "type": "var_s",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "counting_partition",
+        "description": "Selectors use PHP counting variables",
+        "algorithmic_meaning": "Counting argument structure \u2014 branch by counting variable values"
+      }
+    ]
+  },
+  {
+    "system": "PHP-E(2)",
+    "family": "PHP-E",
+    "param": 2,
+    "sc_level": 1,
+    "source": "template:product:vars6",
+    "selector_vars": [
+      6
+    ],
+    "var_roles": {
+      "6": {
+        "type": "var_y",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "extension_partition",
+        "description": "Selectors use PHP extension variables",
+        "algorithmic_meaning": "LPI (Last Pigeon Indicator) \u2014 decomposition by which pigeon is unmapped"
+      }
+    ]
+  },
+  {
+    "system": "PHP-E(3)",
+    "family": "PHP-E",
+    "param": 3,
+    "sc_level": 1,
+    "source": "template:product:vars15",
+    "selector_vars": [
+      15
+    ],
+    "var_roles": {
+      "15": {
+        "type": "var_y",
+        "label": "(2, 3)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "extension_partition",
+        "description": "Selectors use PHP extension variables",
+        "algorithmic_meaning": "LPI (Last Pigeon Indicator) \u2014 decomposition by which pigeon is unmapped"
+      }
+    ]
+  },
+  {
+    "system": "PHP-E(4)",
+    "family": "PHP-E",
+    "param": 4,
+    "sc_level": 2,
+    "source": "template:product:vars20",
+    "selector_vars": [
+      20
+    ],
+    "var_roles": {
+      "20": {
+        "type": "var_y",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "extension_partition",
+        "description": "Selectors use PHP extension variables",
+        "algorithmic_meaning": "LPI (Last Pigeon Indicator) \u2014 decomposition by which pigeon is unmapped"
+      }
+    ]
+  },
+  {
+    "system": "PHP-E(5)",
+    "family": "PHP-E",
+    "param": 5,
+    "sc_level": 2,
+    "source": "template:product:vars30",
+    "selector_vars": [
+      30
+    ],
+    "var_roles": {
+      "30": {
+        "type": "var_y",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "extension_partition",
+        "description": "Selectors use PHP extension variables",
+        "algorithmic_meaning": "LPI (Last Pigeon Indicator) \u2014 decomposition by which pigeon is unmapped"
+      }
+    ]
+  },
+  {
+    "system": "PHP-E(6)",
+    "family": "PHP-E",
+    "param": 6,
+    "sc_level": 2,
+    "source": "template:product:vars42",
+    "selector_vars": [
+      42
+    ],
+    "var_roles": {
+      "42": {
+        "type": "var_y",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "extension_partition",
+        "description": "Selectors use PHP extension variables",
+        "algorithmic_meaning": "LPI (Last Pigeon Indicator) \u2014 decomposition by which pigeon is unmapped"
+      }
+    ]
+  },
+  {
+    "system": "PHP-E(7)",
+    "family": "PHP-E",
+    "param": 7,
+    "sc_level": 2,
+    "source": "template:product:vars56",
+    "selector_vars": [
+      56
+    ],
+    "var_roles": {
+      "56": {
+        "type": "var_y",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "extension_partition",
+        "description": "Selectors use PHP extension variables",
+        "algorithmic_meaning": "LPI (Last Pigeon Indicator) \u2014 decomposition by which pigeon is unmapped"
+      }
+    ]
+  },
+  {
+    "system": "PHP-E(8)",
+    "family": "PHP-E",
+    "param": 8,
+    "sc_level": 2,
+    "source": "template:product:vars72",
+    "selector_vars": [
+      72
+    ],
+    "var_roles": {
+      "72": {
+        "type": "var_y",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 0,
+    "num_auxiliary": 1,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "extension_partition",
+        "description": "Selectors use PHP extension variables",
+        "algorithmic_meaning": "LPI (Last Pigeon Indicator) \u2014 decomposition by which pigeon is unmapped"
+      }
+    ]
+  },
+  {
+    "system": "PHP(2)",
+    "family": "PHP",
+    "param": 2,
+    "sc_level": 0,
+    "source": "template:product:vars0_1",
+    "selector_vars": [
+      0,
+      1
+    ],
+    "var_roles": {
+      "0": {
+        "type": "var_x",
+        "label": "(1, 1)"
+      },
+      "1": {
+        "type": "var_x",
+        "label": "(1, 2)"
+      }
+    },
+    "num_primary": 2,
+    "num_auxiliary": 0,
+    "num_selectors": 4,
+    "patterns": [
+      {
+        "type": "primary_partition",
+        "description": "Selectors use only primary variables [0, 1]",
+        "algorithmic_meaning": "Direct case split on input bits \u2014 no auxiliary structure exploited"
+      }
+    ]
+  },
+  {
+    "system": "PHP(3)",
+    "family": "PHP",
+    "param": 3,
+    "sc_level": 0,
+    "source": "template:product:vars0",
+    "selector_vars": [
+      0
+    ],
+    "var_roles": {
+      "0": {
+        "type": "var_x",
+        "label": "(1, 1)"
+      }
+    },
+    "num_primary": 1,
+    "num_auxiliary": 0,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "primary_partition",
+        "description": "Selectors use only primary variables [0]",
+        "algorithmic_meaning": "Direct case split on input bits \u2014 no auxiliary structure exploited"
+      }
+    ]
+  },
+  {
+    "system": "PHP(4)",
+    "family": "PHP",
+    "param": 4,
+    "sc_level": 3,
+    "source": "template:product:vars0",
+    "selector_vars": [
+      0
+    ],
+    "var_roles": {
+      "0": {
+        "type": "var_x",
+        "label": "(1, 1)"
+      }
+    },
+    "num_primary": 1,
+    "num_auxiliary": 0,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "primary_partition",
+        "description": "Selectors use only primary variables [0]",
+        "algorithmic_meaning": "Direct case split on input bits \u2014 no auxiliary structure exploited"
+      }
+    ]
+  },
+  {
+    "system": "PHP(5)",
+    "family": "PHP",
+    "param": 5,
+    "sc_level": 3,
+    "source": "template:product:vars0",
+    "selector_vars": [
+      0
+    ],
+    "var_roles": {
+      "0": {
+        "type": "var_x",
+        "label": "(1, 1)"
+      }
+    },
+    "num_primary": 1,
+    "num_auxiliary": 0,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "primary_partition",
+        "description": "Selectors use only primary variables [0]",
+        "algorithmic_meaning": "Direct case split on input bits \u2014 no auxiliary structure exploited"
+      }
+    ]
+  },
+  {
+    "system": "PHP(6)",
+    "family": "PHP",
+    "param": 6,
+    "sc_level": 3,
+    "source": "template:product:vars0",
+    "selector_vars": [
+      0
+    ],
+    "var_roles": {
+      "0": {
+        "type": "var_x",
+        "label": "(1, 1)"
+      }
+    },
+    "num_primary": 1,
+    "num_auxiliary": 0,
+    "num_selectors": 2,
+    "patterns": [
+      {
+        "type": "primary_partition",
+        "description": "Selectors use only primary variables [0]",
+        "algorithmic_meaning": "Direct case split on input bits \u2014 no auxiliary structure exploited"
+      }
+    ]
+  },
+  {
+    "system": "Tseitin(6)",
+    "family": "Tseitin",
+    "param": 6,
+    "sc_level": 0,
+    "source": "template:product:vars1_2",
+    "selector_vars": [
+      1,
+      2
+    ],
+    "var_roles": {
+      "1": {
+        "type": "var_x",
+        "label": "(1, 2)"
+      },
+      "2": {
+        "type": "var_x",
+        "label": "(2, 3)"
+      }
+    },
+    "num_primary": 2,
+    "num_auxiliary": 0,
+    "num_selectors": 4,
+    "patterns": [
+      {
+        "type": "primary_partition",
+        "description": "Selectors use only primary variables [1, 2]",
+        "algorithmic_meaning": "Direct case split on input bits \u2014 no auxiliary structure exploited"
+      }
+    ]
+  },
+  {
+    "system": "Tseitin(8)",
+    "family": "Tseitin",
+    "param": 8,
+    "sc_level": 0,
+    "source": "template:product:vars1_2",
+    "selector_vars": [
+      1,
+      2
+    ],
+    "var_roles": {
+      "1": {
+        "type": "var_x",
+        "label": "(1, 2)"
+      },
+      "2": {
+        "type": "var_x",
+        "label": "(2, 3)"
+      }
+    },
+    "num_primary": 2,
+    "num_auxiliary": 0,
+    "num_selectors": 4,
+    "patterns": [
+      {
+        "type": "primary_partition",
+        "description": "Selectors use only primary variables [1, 2]",
+        "algorithmic_meaning": "Direct case split on input bits \u2014 no auxiliary structure exploited"
+      }
+    ]
+  }
+]

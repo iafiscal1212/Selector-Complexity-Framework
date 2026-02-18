@@ -2,13 +2,79 @@
   "system": "Tseitin(8)",
   "n": 8,
   "level_estimate": 0,
-  "candidates_tested": 91,
-  "candidates_verified": 90,
+  "candidates_tested": 121,
+  "candidates_verified": 120,
   "best_selector": {
     "num_selectors": 4,
     "total_size": 9,
     "degree": 2,
-    "source": "template:product:vars1_2"
+    "source": "template:product:vars1_2",
+    "polynomials": {
+      "0": [
+        {
+          "c": 1.0,
+          "m": []
+        },
+        {
+          "c": -1.0,
+          "m": [
+            2
+          ]
+        },
+        {
+          "c": -1.0,
+          "m": [
+            1
+          ]
+        },
+        {
+          "c": 1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ],
+      "1": [
+        {
+          "c": 1.0,
+          "m": [
+            1
+          ]
+        },
+        {
+          "c": -1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ],
+      "2": [
+        {
+          "c": 1.0,
+          "m": [
+            2
+          ]
+        },
+        {
+          "c": -1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ],
+      "3": [
+        {
+          "c": 1.0,
+          "m": [
+            1,
+            2
+          ]
+        }
+      ]
+    }
   },
   "cert_without_selectors": {
     "degree": 1,
@@ -20,11 +86,12 @@
   },
   "all_candidates": [],
   "timings": {
-    "baseline": 0.0,
-    "exhaustive": 0.464,
+    "baseline": 0.001,
+    "exhaustive": 0.37,
     "template": 0.001,
     "ips_guided": 0.001,
     "subspace_projection": 0.004,
-    "variable_group": 0.007
+    "variable_group": 0.004,
+    "axiom_graph": 0.001
   }
 }

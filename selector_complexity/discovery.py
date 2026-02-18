@@ -42,7 +42,7 @@ class DiscoveryConfig:
     max_selector_degree: int = 4
     strategies: List[str] = field(default_factory=lambda: [
         "exhaustive", "template", "ips_guided",
-        "subspace_projection", "variable_group"
+        "subspace_projection", "variable_group", "axiom_graph"
     ])
     max_vars_exhaustive: int = 15
     top_k_variables: int = 10
@@ -105,6 +105,33 @@ class DiscoveryResult:
     def save(self, path):
         with open(path, "w") as f:
             f.write(self.to_json())
+
+
+# ---------------------------------------------------------------------------
+# Selector serialization
+# ---------------------------------------------------------------------------
+
+def _serialize_selectors(selectors):
+    """Serialize selector polynomials to JSON-safe format.
+
+    Converts {label: [(coef, frozenset), ...]} to
+    {str(label): [{"c": coef, "m": sorted_list}, ...]}.
+    """
+    out = {}
+    for label, terms in selectors.items():
+        out[str(label)] = [
+            {"c": round(c, 10), "m": sorted(m)}
+            for c, m in terms if abs(c) > 1e-12
+        ]
+    return out
+
+
+def _deserialize_selectors(data):
+    """Inverse of _serialize_selectors. Returns dict of label -> [(coef, frozenset)]."""
+    out = {}
+    for label, terms in data.items():
+        out[label] = [(t["c"], frozenset(t["m"])) for t in terms]
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -559,6 +586,7 @@ class DiscoveryEngine:
                 "total_size": best.total_size,
                 "degree": best.degree,
                 "source": best.source,
+                "polynomials": _serialize_selectors(best.selectors),
             }
         if best_cert is not None:
             result.cert_with_selectors = {
