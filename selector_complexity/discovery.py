@@ -142,8 +142,6 @@ def _solve_with_aip(A, b, use_aip=True):
     """Route to aip.solve() when available, fall back to scipy LSQR."""
     if use_aip:
         try:
-            import sys
-            sys.path.insert(0, "/home/caresment/aip-engine-github/src")
             import aip
             return aip.solve(A, b)
         except ImportError:
@@ -158,8 +156,6 @@ def _solve_large_with_accordion(axioms, num_vars, d_max, use_aip=True):
     if not use_aip:
         return find_certificate(axioms, num_vars, d_max)
     try:
-        import sys
-        sys.path.insert(0, "/home/caresment/aip-engine-github/src")
         from aip.accordion import AccordionBuilder, solve_chunks, PascalIndex
 
         pidx = PascalIndex(num_vars, d_max)

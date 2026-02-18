@@ -15,7 +15,7 @@ Author: Carmen Esteban
 License: MIT
 """
 
-__version__ = "0.5.0"  # SC(3) proved: Tseitin on expanders, complete hierarchy
+__version__ = "0.5.1"  # Clean aip-engine integration via PyPI, add optional dependency
 __author__ = "Carmen Esteban"
 
 from selector_complexity.core import PolynomialSystem, SelectorFamily

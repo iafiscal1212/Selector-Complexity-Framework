@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "selector-complexity"
-version = "0.5.0"
+version = "0.5.1"
 description = "Selector Complexity Framework: classifying tautologies by selector cost in IPS (Ideal Proof Systems). Proves SC(0) ⊊ SC(1) ⊊ SC(2) ⊊ SC(3)."
 readme = "README.md"
 license = "MIT"
@@ -35,6 +35,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
+
+[project.optional-dependencies]
+aip = ["aip-engine>=0.4.0"]
+dev = ["pytest>=7.0"]
 
 [project.urls]
 Homepage = "https://github.com/iafiscal1212/Selector-Complexity-Framework"
